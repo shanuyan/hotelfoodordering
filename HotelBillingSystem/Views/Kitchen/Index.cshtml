@@ -1,0 +1,164 @@
+@model HotelBillingSystem.ViewModels.KitchenDashboardViewModel
+@{
+    ViewData["Title"] = "Kitchen Staff Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="row mb-3 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-fire me-2 text-warning"></i> Kitchen Display & Order Control</h2>
+        <p class="text-muted mb-0">Chef: <strong>@Model.KitchenUser.FullName</strong> | Assigned Workload</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-2 mt-md-0">
+        <div class="d-inline-flex align-items-center bg-white p-2 rounded-pill shadow-sm border">
+            <span class="fw-bold me-2 ms-2">My Work Status:</span>
+            <select id="staffStatusSelect" class="form-select form-select-sm fw-bold border-0 bg-light rounded-pill px-3" onchange="updateStaffStatus(this.value)">
+                <option value="1" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.Available)">🟢 AVAILABLE</option>
+                <option value="2" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.Busy)">🟡 BUSY</option>
+                <option value="4" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.OnBreak)">☕ ON BREAK</option>
+                <option value="3" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.Offline)">🔴 OFFLINE</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Active Orders Grid -->
+<div class="row g-3" id="kitchenOrdersGrid">
+    @if (!Model.AssignedActiveOrders.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="card border-0 shadow-sm p-5 rounded-4">
+                <i class="fas fa-utensils fa-4x text-muted mb-3 opacity-50"></i>
+                <h4 class="fw-bold text-muted">No Active Assigned Orders</h4>
+                <p class="text-muted">You have no pending orders in your queue. New orders assigned by the Smart Balancing Algorithm will appear here automatically in real time.</p>
+            </div>
+        </div>
+    }
+
+    @foreach (var order in Model.AssignedActiveOrders)
+    {
+        double elapsedMinutes = (DateTime.UtcNow - order.CreatedAt).TotalMinutes;
+        string cardBorder = elapsedMinutes > 20 ? "border-danger border-3" : (elapsedMinutes > 10 ? "border-warning border-3" : "border-success border-2");
+        string urgencyBadge = elapsedMinutes > 20 ? "bg-danger" : (elapsedMinutes > 10 ? "bg-warning text-dark" : "bg-success");
+        string urgencyLabel = elapsedMinutes > 20 ? "DELAYED (20m+)" : (elapsedMinutes > 10 ? "WARNING (10m+)" : "NORMAL");
+
+        <div class="col-md-6 col-lg-4" id="order-card-@order.Id">
+            <div class="card h-100 shadow-sm rounded-4 overflow-hidden @cardBorder">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h5 class="fw-bold mb-0"><i class="fas fa-chair me-1 text-warning"></i> @order.Table?.TableNumber</h5>
+                        <small class="text-white-50">Order #@order.OrderNumber</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge @urgencyBadge px-2 py-1 fw-bold">@urgencyLabel</span>
+                        <div class="small text-white-50 mt-1">@order.CreatedAt.ToString("HH:mm:ss")</div>
+                    </div>
+                </div>
+
+                <div class="card-body p-3">
+                    @if (!string.IsNullOrEmpty(order.CustomerNotes))
+                    {
+                        <div class="alert alert-warning py-1 px-2 small mb-2 fw-bold">
+                            <i class="fas fa-exclamation-circle me-1"></i> Note: @order.CustomerNotes
+                        </div>
+                    }
+
+                    <h6 class="fw-bold border-bottom pb-2 text-primary">Items to Prepare:</h6>
+                    <ul class="list-group list-group-flush mb-3">
+                        @foreach (var item in order.OrderItems)
+                        {
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom-0">
+                                <div>
+                                    <span class="fw-bold fs-6">@item.FoodName</span>
+                                    @if (!string.IsNullOrEmpty(item.SpecialInstructions))
+                                    {
+                                        <div class="small text-danger fw-semibold"><i class="fas fa-asterisk me-1"></i> @item.SpecialInstructions</div>
+                                    }
+                                </div>
+                                <span class="badge bg-primary rounded-pill fs-6 px-3">x @item.Quantity</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="card-footer bg-light p-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold small">Current Status:</span>
+                        <span class="badge bg-secondary px-2 py-1" id="status-badge-@order.Id">@order.Status</span>
+                    </div>
+
+                    <div id="action-buttons-@order.Id" class="d-grid gap-2">
+                        @if (order.Status == HotelBillingSystem.Models.OrderStatus.Assigned || order.Status == HotelBillingSystem.Models.OrderStatus.New)
+                        {
+                            <button class="btn btn-primary fw-bold" onclick="updateOrderStatus(@order.Id, 3)">
+                                <i class="fas fa-check me-1"></i> Accept Order
+                            </button>
+                        }
+                        else if (order.Status == HotelBillingSystem.Models.OrderStatus.Accepted)
+                        {
+                            <button class="btn btn-warning text-dark fw-bold" onclick="updateOrderStatus(@order.Id, 4)">
+                                <i class="fas fa-fire me-1"></i> Start Preparing
+                            </button>
+                        }
+                        else if (order.Status == HotelBillingSystem.Models.OrderStatus.Preparing)
+                        {
+                            <button class="btn btn-success fw-bold" onclick="updateOrderStatus(@order.Id, 5)">
+                                <i class="fas fa-bell me-1"></i> Mark as Ready
+                            </button>
+                        }
+                        else if (order.Status == HotelBillingSystem.Models.OrderStatus.Ready)
+                        {
+                            <button class="btn btn-info text-white fw-bold" onclick="updateOrderStatus(@order.Id, 6)">
+                                <i class="fas fa-concierge-bell me-1"></i> Mark as Served
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    async function updateOrderStatus(orderId, newStatus) {
+        try {
+            let res = await fetch(`/Kitchen/UpdateStatus?orderId=${orderId}&newStatus=${newStatus}`, { method: 'POST' });
+            let data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error updating order: ' + data.message);
+            }
+        } catch (e) {
+            alert('Failed to connect to server.');
+        }
+    }
+
+    async function updateStaffStatus(statusValue) {
+        try {
+            let res = await fetch(`/Kitchen/UpdateStaffStatus?status=${statusValue}`, { method: 'POST' });
+            let data = await res.json();
+            if (!data.success) {
+                alert('Failed to update staff status.');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Real-Time SignalR Listener
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hotelHub")
+        .build();
+
+    connection.on("ReceiveNewKitchenOrder", function(order) {
+        // Play notification sound / alert and refresh
+        window.location.reload();
+    });
+
+    connection.start().then(() => {
+        connection.invoke("JoinGroup", "Kitchen");
+    }).catch(err => console.error(err));
+</script>
+}

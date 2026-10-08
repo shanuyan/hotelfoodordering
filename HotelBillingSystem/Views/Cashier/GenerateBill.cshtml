@@ -1,0 +1,145 @@
+@model HotelBillingSystem.ViewModels.BillInvoiceViewModel
+@{
+    ViewData["Title"] = $"Bill Invoice - {Model.Table.TableNumber}";
+    Layout = "_Layout";
+}
+
+<div class="container my-3" style="max-width: 900px;">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-success text-white p-4 text-center">
+            <h3 class="fw-bold mb-0"><i class="fas fa-file-invoice-dollar me-2"></i> Pannaum Hotel & Restaurant</h3>
+            <p class="mb-0 opacity-75">Customer Invoice & Payment Settlement</p>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row mb-4 border-bottom pb-3">
+                <div class="col-6">
+                    <h5 class="fw-bold text-dark mb-1"><i class="fas fa-chair text-success me-1"></i> @Model.Table.TableNumber</h5>
+                    <p class="text-muted mb-0 small">Session: <code>@Model.Session.SessionCode</code></p>
+                </div>
+                <div class="col-6 text-end">
+                    <p class="mb-0 fw-bold">Invoice #: <code>@Model.Bill.InvoiceNumber</code></p>
+                    <p class="text-muted mb-0 small">Date: @DateTime.UtcNow.ToString("f")</p>
+                </div>
+            </div>
+
+            <!-- Itemized Orders List -->
+            <h5 class="fw-bold mb-3"><i class="fas fa-list me-2 text-primary"></i> Itemized Orders Breakdown</h5>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Food Item</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end">Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.Orders)
+                        {
+                            <tr class="table-light">
+                                <td colspan="4" class="fw-bold text-primary">
+                                    <i class="fas fa-receipt me-1"></i> Order #@order.OrderNumber (@order.CreatedAt.ToString("HH:mm"))
+                                </td>
+                            </tr>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <tr>
+                                    <td class="ps-4">@item.FoodName</td>
+                                    <td class="text-center fw-bold">@item.Quantity</td>
+                                    <td class="text-end">Rs. @item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-end fw-bold">Rs. @item.SubTotal.ToString("N2")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Calculation Summary -->
+            <form asp-action="ProcessPayment" method="post">
+                <input type="hidden" name="billId" value="@Model.Bill.Id" />
+
+                <div class="row g-3 bg-light p-4 rounded-4 border mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"><i class="fas fa-percent me-1"></i> Authorized Discount (Rs.)</label>
+                            <input type="number" step="0.01" min="0" name="discountAmount" id="discountInput" class="form-control form-control-lg fw-bold" value="@Model.Bill.DiscountAmount" onchange="calculateGrandTotal()" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Discount Reason / Note</label>
+                            <input type="text" name="discountReason" class="form-control" placeholder="e.g. Manager Special, VIP Guest" value="@Model.Bill.DiscountReason" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 border-start ps-md-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-semibold">Subtotal:</span>
+                            <span class="fw-bold">Rs. @Model.Bill.SubTotal.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-semibold">Service Charge (10%):</span>
+                            <span class="fw-bold">Rs. @Model.Bill.ServiceCharge.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-danger">
+                            <span class="fw-semibold">Discount:</span>
+                            <span class="fw-bold">- Rs. <span id="discountDisplay">0.00</span></span>
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-between fs-4 fw-bold text-success">
+                            <span>Grand Total:</span>
+                            <span>Rs. <span id="grandTotalDisplay">@Model.Bill.GrandTotal.ToString("N2")</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Selection -->
+                <div class="card border-primary mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white fw-bold">
+                        <i class="fas fa-credit-card me-2"></i> Payment Method & Settlement
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Payment Method</label>
+                                <select name="method" class="form-select form-select-lg fw-bold">
+                                    <option value="1">💵 Cash</option>
+                                    <option value="2">💳 Credit / Debit Card</option>
+                                    <option value="3">📱 Online / QR Transfer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Transaction Reference / Cash Notes</label>
+                                <input type="text" name="reference" class="form-control form-control-lg" placeholder="e.g. POS-TXN-884930 or Cash Tendered" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg fw-bold rounded-pill px-4">Back to Dashboard</a>
+                    <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill px-5 shadow">
+                        <i class="fas fa-check-circle me-2"></i> Confirm Payment & Close Table
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const subtotal = @Model.Bill.SubTotal;
+    const serviceCharge = @Model.Bill.ServiceCharge;
+
+    function calculateGrandTotal() {
+        let discount = parseFloat(document.getElementById('discountInput').value) || 0;
+        let grand = subtotal + serviceCharge - discount;
+        if (grand < 0) grand = 0;
+
+        document.getElementById('discountDisplay').innerText = discount.toFixed(2);
+        document.getElementById('grandTotalDisplay').innerText = grand.toFixed(2);
+    }
+</script>
+}

@@ -1,0 +1,139 @@
+@model HotelBillingSystem.Services.AdminDashboardSummary
+@{
+    ViewData["Title"] = "Business Intelligence & Sales Reports";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-chart-line me-2 text-primary"></i> Business Intelligence & Analytics</h2>
+        <p class="text-muted mb-0">Hotel revenue reports, dish popularities, and peak hour distributions</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Daily Revenue Line Chart -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-chart-area me-2 text-primary"></i> Daily Sales Revenue Trend (7 Days)</h5>
+            <div class="ratio ratio-16x9">
+                <canvas id="dailySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Sales Doughnut Chart -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-chart-pie me-2 text-success"></i> Sales by Food Category</h5>
+            <div class="ratio ratio-1x1">
+                <canvas id="categorySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Top 10 Selling Items Bar Chart -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-trophy me-2 text-warning"></i> Top 10 Best Selling Items</h5>
+            <div class="ratio ratio-4x3">
+                <canvas id="topItemsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Peak Hours Distribution Bar Chart -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-clock me-2 text-info"></i> Peak Ordering Hours (Distribution)</h5>
+            <div class="ratio ratio-4x3">
+                <canvas id="peakHoursChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Daily Sales Chart
+        fetch('/api/reports/daily-sales?days=7')
+            .then(res => res.json())
+            .then(data => {
+                new Chart(document.getElementById('dailySalesChart'), {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Revenue (Rs.)',
+                            data: data.salesValues,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            });
+
+        // 2. Category Sales Chart
+        fetch('/api/reports/category-sales')
+            .then(res => res.json())
+            .then(data => {
+                new Chart(document.getElementById('categorySalesChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(x => x.categoryName),
+                        datasets: [{
+                            data: data.map(x => x.totalAmount),
+                            backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#0dcaf0', '#6c757d', '#d63384']
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            });
+
+        // 3. Top Items Chart
+        fetch('/api/reports/top-items?top=10')
+            .then(res => res.json())
+            .then(data => {
+                new Chart(document.getElementById('topItemsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(x => x.itemName),
+                        datasets: [{
+                            label: 'Quantity Sold',
+                            data: data.map(x => x.quantitySold),
+                            backgroundColor: '#ffc107'
+                        }]
+                    },
+                    options: { indexAxis: 'y', responsive: true }
+                });
+            });
+
+        // 4. Peak Hours Chart
+        fetch('/api/reports/peak-hours')
+            .then(res => res.json())
+            .then(data => {
+                let hours = Object.keys(data).map(h => `${h}:00`);
+                let counts = Object.values(data);
+
+                new Chart(document.getElementById('peakHoursChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: hours,
+                        datasets: [{
+                            label: 'Orders Count',
+                            data: counts,
+                            backgroundColor: '#0dcaf0'
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            });
+    });
+</script>
+}

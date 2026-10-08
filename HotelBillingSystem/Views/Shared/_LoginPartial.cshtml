@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Identity
+@using HotelBillingSystem.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav ms-auto">
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle me-1"></i> @(currentUser?.FullName ?? User.Identity?.Name) (@currentUser?.StaffRole)
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+            <li>
+                <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="dropdown-item text-danger fw-semibold">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link btn btn-outline-light btn-sm text-white px-3 fw-bold" asp-controller="Account" asp-action="Login">
+            <i class="fas fa-lock me-1"></i> Staff Login
+        </a>
+    </li>
+}
+</ul>

@@ -1,0 +1,44 @@
+@model IEnumerable<HotelBillingSystem.Models.AuditLog>
+@{
+    ViewData["Title"] = "System Audit Logs";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-history me-2 text-secondary"></i> System Audit Trail Logs</h2>
+        <p class="text-muted mb-0">Record of administrative actions, status updates, and transaction security logs</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                        <th>Entity ID</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td><small class="fw-bold">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</small></td>
+                            <td><span class="badge bg-primary">@log.UserName</span></td>
+                            <td class="fw-bold"><code>@log.Action</code></td>
+                            <td>@log.EntityName</td>
+                            <td>@log.EntityId</td>
+                            <td><small class="text-muted">@log.Details</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

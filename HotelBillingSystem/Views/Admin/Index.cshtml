@@ -1,0 +1,160 @@
+@model HotelBillingSystem.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Supervision Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-tachometer-alt me-2 text-danger"></i> Hotel Operations Monitor</h2>
+        <p class="text-muted mb-0">Live real-time operational overview, staff workloads, and sales metrics</p>
+    </div>
+    <a asp-action="Reports" class="btn btn-primary fw-bold rounded-pill px-3">
+        <i class="fas fa-chart-line me-1"></i> Open Full BI Reports
+    </a>
+</div>
+
+<!-- Key Performance Metric Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Today's Sales</h6>
+                    <h2 class="fw-bold mb-0">Rs. @Model.Summary.TodaySales.ToString("N0")</h2>
+                </div>
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="fas fa-dollar-sign fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 bg-success text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Today's Orders</h6>
+                    <h2 class="fw-bold mb-0">@Model.Summary.TodayOrdersCount</h2>
+                </div>
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="fas fa-shopping-basket fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 bg-warning text-dark p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Occupied Tables</h6>
+                    <h2 class="fw-bold mb-0">@Model.Summary.OccupiedTablesCount / @(Model.Summary.OccupiedTablesCount + Model.Summary.AvailableTablesCount)</h2>
+                </div>
+                <div class="bg-dark bg-opacity-10 rounded-circle p-3">
+                    <i class="fas fa-chair fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 bg-info text-white p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Kitchen Staff</h6>
+                    <h2 class="fw-bold mb-0">@Model.Summary.AvailableKitchenStaffCount Available</h2>
+                </div>
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="fas fa-user-chef fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Active Orders Feed -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-fire text-warning me-2"></i> Live Active Orders Queue</h5>
+                <span class="badge bg-primary rounded-pill">@Model.RecentOrders.Count Active</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Table</th>
+                                <th>Assigned Staff</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td class="fw-bold"><code>@order.OrderNumber</code></td>
+                                    <td><span class="badge bg-dark">@order.Table?.TableNumber</span></td>
+                                    <td>@(order.AssignedKitchenStaff?.FullName ?? "Unassigned")</td>
+                                    <td><span class="badge bg-warning text-dark">@order.Status</span></td>
+                                    <td>@order.CreatedAt.ToString("HH:mm:ss")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kitchen Staff Performance & Workload -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-user-clock text-info me-2"></i> Kitchen Staff Workload</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @foreach (var staff in Model.KitchenPerformance)
+                    {
+                        <li class="list-group-item px-0 py-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-dark">@staff.StaffName</span>
+                                <span class="badge bg-primary rounded-pill">@staff.ActiveOrders Active Orders</span>
+                            </div>
+                            <div class="small text-muted">
+                                Completed: <strong>@staff.CompletedOrders</strong> | Avg Prep Time: <strong>@staff.AveragePrepMinutes min</strong>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Occupancy Map -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-th me-2 text-primary"></i> Restaurant Table Layout & Status</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-3">
+            @foreach (var table in Model.Tables)
+            {
+                string bgClass = table.Status == HotelBillingSystem.Models.TableStatus.Occupied ? "bg-warning text-dark" : "bg-success text-white";
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="p-3 rounded-4 text-center shadow-sm @bgClass">
+                        <i class="fas fa-chair fa-2x mb-2"></i>
+                        <h6 class="fw-bold mb-0">@table.TableNumber</h6>
+                        <small class="fw-semibold">@table.Status</small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

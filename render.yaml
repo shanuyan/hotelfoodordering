@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: pannaum-hotel-billing
+    env: docker
+    dockerContext: ./HotelBillingSystem
+    dockerfilePath: ./HotelBillingSystem/Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production

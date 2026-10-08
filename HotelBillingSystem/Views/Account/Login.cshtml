@@ -1,0 +1,44 @@
+@model HotelBillingSystem.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Staff Login";
+}
+
+<div class="row justify-content-center py-5">
+    <div class="col-md-5">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-primary text-white text-center py-4 rounded-top-4">
+                <h3 class="fw-bold mb-0"><i class="fas fa-user-lock me-2"></i> Staff Portal Login</h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold"><i class="fas fa-envelope me-1"></i> Email Address</label>
+                        <input asp-for="Email" class="form-control form-control-lg" placeholder="admin@hotel.com" required />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-bold"><i class="fas fa-lock me-1"></i> Password</label>
+                        <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="••••••••" required />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label fw-semibold">Remember Me</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+                        <i class="fas fa-sign-in-alt me-2"></i> Log In
+                    </button>
+                </form>
+            </div>
+            <div class="card-footer bg-light text-center py-3">
+                <small class="text-muted fw-semibold">For Demo Credentials, please refer to the <a asp-controller="Home" asp-action="Index">Home Portal</a></small>
+            </div>
+        </div>
+    </div>
+</div>

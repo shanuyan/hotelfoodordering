@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Smart Hotel Management System</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- FontAwesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm border-bottom">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-utensils me-2"></i> Pannaum Smart Hotel
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Index"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Users"><i class="fas fa-users me-1"></i> Users</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Tables"><i class="fas fa-chair me-1"></i> Tables & QR</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Menu"><i class="fas fa-hamburger me-1"></i> Food Menu</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Reports"><i class="fas fa-chart-line me-1"></i> Reports</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="AuditLogs"><i class="fas fa-history me-1"></i> Audit Logs</a></li>
+                        }
+                        @if (User.IsInRole("KitchenStaff"))
+                        {
+                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Kitchen" asp-action="Index"><i class="fas fa-fire me-1"></i> Kitchen Orders</a></li>
+                        }
+                        @if (User.IsInRole("CashierStaff"))
+                        {
+                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Cashier" asp-action="Index"><i class="fas fa-cash-register me-1"></i> Cashier Billing</a></li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="container-fluid px-4 py-3 flex-grow-1">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer text-muted bg-white py-3 mt-auto shadow-sm">
+        <div class="container-fluid text-center">
+            <span class="fw-semibold">&copy; @DateTime.UtcNow.Year Pannaum Smart Hotel & Restaurant Ordering System. Powered by ASP.NET Core & SignalR.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Microsoft SignalR JS Client -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
