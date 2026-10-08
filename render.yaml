@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pannaum-hotel-billing
+    name: hotel-billing-system
     env: docker
     dockerContext: ./HotelBillingSystem
     dockerfilePath: ./HotelBillingSystem/Dockerfile
