@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: hotel-billing-system
+    name: hotelfoodordering
     env: docker
     dockerContext: ./HotelBillingSystem
     dockerfilePath: ./HotelBillingSystem/Dockerfile
