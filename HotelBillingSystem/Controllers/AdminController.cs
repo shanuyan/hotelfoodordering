@@ -240,6 +240,20 @@ namespace HotelBillingSystem.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ToggleDailyMenu(int foodId)
+        {
+            var food = await _menuService.GetFoodItemByIdAsync(foodId);
+            if (food == null) return Json(new { success = false, message = "Item not found." });
+
+            food.IsDailyMenu = !food.IsDailyMenu;
+            await _menuService.UpdateFoodItemAsync(food);
+
+            await _auditLogService.LogAsync(User.Identity?.Name, User.Identity?.Name ?? "Admin", "TOGGLE_DAILY_MENU", "FoodItem", foodId.ToString(), $"Toggled {food.Name} IsDailyMenu to {food.IsDailyMenu}");
+
+            return Json(new { success = true, isDailyMenu = food.IsDailyMenu });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> ToggleFoodAvailability(int foodId)
         {
             var food = await _menuService.GetFoodItemByIdAsync(foodId);

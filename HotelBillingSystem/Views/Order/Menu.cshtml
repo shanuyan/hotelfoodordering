@@ -1,99 +1,144 @@
 @model HotelBillingSystem.ViewModels.CustomerMenuViewModel
 @{
-    ViewData["Title"] = $"Menu - {Model.Table.TableNumber}";
+    ViewData["Title"] = $"Customer Food Ordering Page - {Model.Table.TableNumber}";
     Layout = "_Layout";
 }
 
-<div class="container my-2" style="max-width: 900px;">
-    <!-- Welcome Table Banner -->
-    <div class="card bg-dark text-white border-0 shadow-sm mb-3 rounded-4 overflow-hidden">
-        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+<div class="container-fluid px-lg-5 py-3">
+    <!-- TOP HEADER CARD (Matching User Image) -->
+    <div class="card top-header-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
-                <span class="badge bg-success text-white px-3 py-2 mb-2 fs-6">
-                    <i class="fas fa-circle me-1"></i> Connected
+                <span class="badge bg-light text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-bold text-uppercase small">
+                    🍴 SMART HOTEL & RESTAURANT • TABLESIDE SERVICE
                 </span>
-                <h2 class="fw-bold mb-1"><i class="fas fa-chair me-2 text-warning"></i> @Model.Table.TableNumber</h2>
-                <p class="mb-0 opacity-75 fs-6"><i class="fas fa-location-dot me-1"></i> @Model.Table.Location | Session: <code>@Model.Session.SessionCode</code></p>
+                <h1 class="fw-bold mb-0 text-dark mt-2" style="font-size: 2.2rem; letter-spacing: -0.03em;">
+                    Customer Food Ordering Page
+                </h1>
             </div>
-            <div>
-                @if (Model.SessionOrders.Any())
+            <div class="text-end">
+                <span class="badge bg-light text-muted border px-3 py-2 rounded-3 font-monospace small">
+                    Session Code: <strong class="text-danger">@Model.Session.SessionCode</strong>
+                </span>
+            </div>
+        </div>
+
+        <!-- TABLE SELECTION DROPDOWN -->
+        <div class="table-select-box mb-3">
+            <label class="form-label fw-bold text-uppercase small mb-1" style="color: #d9531e; letter-spacing: 0.05em;">
+                🪑 SELECT YOUR TABLE NUMBER:
+            </label>
+            <select id="tableSelector" class="form-select form-select-lg fw-bold text-dark border-0 bg-transparent ps-0" style="font-size: 1.1rem;" onchange="changeTableSelection(this.value)">
+                @foreach (var t in Model.AllTables)
                 {
-                    <a asp-action="Track" asp-route-id="@Model.SessionOrders.First().Id" class="btn btn-warning text-dark fw-bold rounded-pill px-3 py-2 shadow-sm">
-                        <i class="fas fa-clock me-1"></i> Track Active Order
-                    </a>
+                    if (t.Id == Model.Table.Id)
+                    {
+                        <option value="@t.Id" selected>🪑 @t.TableNumber (@t.Location – @t.Capacity Seats) – Currently Selected</option>
+                    }
+                    else
+                    {
+                        <option value="@t.Id">🪑 @t.TableNumber (@t.Location – @t.Capacity Seats)</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <!-- META DETAILS FOOTER -->
+        <div class="row g-2 pt-2 border-top border-light text-muted small">
+            <div class="col-md-4"><i class="fas fa-map-marker-alt text-danger me-1"></i> No 123, Beach Road, Colombo</div>
+            <div class="col-md-4"><i class="fas fa-phone-alt text-success me-1"></i> +94 11 234 5678</div>
+            <div class="col-md-4 text-md-end"><i class="fas fa-clock text-warning me-1"></i> Open Daily: <strong>07:00 AM – 11:00 PM</strong></div>
+        </div>
+    </div>
+
+    <!-- MAIN 2-COLUMN LAYOUT -->
+    <div class="row g-4">
+        <!-- LEFT COLUMN: MENU & DISHES (col-lg-8) -->
+        <div class="col-lg-8">
+            <!-- TOGGLE MENU TYPE: Today's Daily Menu vs Regular Menu -->
+            <div class="card bg-white border-0 shadow-sm rounded-4 p-2 mb-4">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-terracotta flex-fill" id="btnDailyMenu" onclick="switchMenuType('daily')">
+                        🔥 Today's Daily Menu
+                    </button>
+                    <button type="button" class="btn btn-terracotta-outline flex-fill" id="btnRegularMenu" onclick="switchMenuType('regular')">
+                        📖 Regular Menu
+                    </button>
+                </div>
+            </div>
+
+            <!-- SEARCH BAR -->
+            <div class="position-relative mb-4">
+                <div class="input-group input-group-lg shadow-sm rounded-4 overflow-hidden border">
+                    <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fas fa-search"></i></span>
+                    <input type="text" id="foodSearchInput" class="form-control border-0 ps-2" placeholder="Search dishes, beverages, desserts...">
+                    <span class="input-group-text bg-white border-0 pe-3 text-muted"><kbd class="bg-light text-dark border">⌘ K</kbd></span>
+                </div>
+            </div>
+
+            <!-- CATEGORY PILLS -->
+            <div class="d-flex gap-2 overflow-auto mb-4 pb-2" id="categoryPillBar">
+                <button class="category-pill active" id="pill-all" onclick="filterCategory('all')">All Items</button>
+                @foreach (var cat in Model.Categories)
+                {
+                    <button class="category-pill" id="pill-@cat.Id" onclick="filterCategory('@cat.Id')">@cat.Name</button>
                 }
             </div>
-        </div>
-    </div>
 
-    <!-- Search Bar -->
-    <div class="mb-3">
-        <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
-            <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fas fa-search"></i></span>
-            <input type="text" id="foodSearchInput" class="form-control border-0 ps-2" placeholder="Search delicious dishes or beverages...">
-        </div>
-    </div>
-
-    <!-- Category Nav Pills -->
-    <ul class="nav nav-pills flex-nowrap overflow-auto mb-4 pb-2 border-bottom" id="categoryTabs" role="tablist">
-        <li class="nav-item me-2">
-            <button class="nav-link active rounded-pill fw-bold px-4 py-2" id="cat-all-tab" data-bs-toggle="pill" data-bs-target="#cat-all" type="button">
-                All Items
-            </button>
-        </li>
-        @foreach (var cat in Model.Categories)
-        {
-            <li class="nav-item me-2">
-                <button class="nav-link rounded-pill fw-bold px-4 py-2" id="cat-@cat.Id-tab" data-bs-toggle="pill" data-bs-target="#cat-@cat.Id" type="button">
-                    @cat.Name
-                </button>
-            </li>
-        }
-    </ul>
-
-    <!-- Menu Items List -->
-    <div class="tab-content" id="categoryTabContent">
-        <!-- ALL Items Tab -->
-        <div class="tab-pane fade show active" id="cat-all" role="tabpanel">
-            <div class="row g-3" id="allFoodContainer">
+            <!-- FOOD CARDS GRID (2-Column Grid col-md-6) -->
+            <div class="row g-3" id="foodGridContainer">
                 @foreach (var cat in Model.Categories)
                 {
                     @foreach (var item in cat.FoodItems)
                     {
-                        <div class="col-md-6 food-card-wrapper" data-name="@item.Name.ToLower()" data-category="@cat.Id">
-                            <div class="card h-100 border-0 shadow-sm rounded-3 food-card overflow-hidden">
-                                <div class="row g-0 h-100 align-items-center">
-                                    <div class="col-4 p-2 text-center bg-light">
-                                        <div class="ratio ratio-1x1 rounded-3 overflow-hidden bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center">
-                                            <i class="fas fa-utensils fa-2x text-secondary opacity-50"></i>
+                        <div class="col-md-6 food-card-wrapper"
+                             data-name="@item.Name.ToLower()"
+                             data-category="@cat.Id"
+                             data-daily="@item.IsDailyMenu.ToString().ToLower()">
+
+                            <div class="food-card-item p-3 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex gap-3 mb-2">
+                                        <!-- Food Thumbnail with Badge -->
+                                        <div class="position-relative flex-shrink-0" style="width: 100px; height: 100px;">
+                                            <div class="bg-light rounded-3 h-100 w-100 d-flex align-items-center justify-content-center border overflow-hidden">
+                                                <i class="fas fa-utensils fa-2x text-secondary opacity-50"></i>
+                                            </div>
+                                            @if (item.IsDailyMenu)
+                                            {
+                                                <span class="position-absolute top-0 start-0 badge bg-dark text-warning font-monospace m-1" style="font-size: 0.6rem;">DAILY SPECIAL</span>
+                                            }
+                                        </div>
+
+                                        <!-- Dish Information -->
+                                        <div class="flex-grow-1">
+                                            <h5 class="fw-bold text-dark mb-1 fs-6">@item.Name</h5>
+                                            <p class="text-muted small mb-2 text-truncate-2" style="font-size: 0.8rem;">@item.Description</p>
+                                            <div class="d-flex align-items-center gap-2 small text-muted">
+                                                <span><i class="far fa-clock text-warning me-1"></i> ~@item.PrepTimeMinutes min</span>
+                                                <span>•</span>
+                                                <span class="text-danger fw-semibold"><i class="fas fa-pepper-hot me-1"></i> Chef's Choice</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-8">
-                                        <div class="card-body p-3">
-                                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                                <h5 class="card-title fw-bold text-dark mb-0 fs-6">@item.Name</h5>
-                                                <span class="badge bg-primary rounded-pill">Rs. @item.Price.ToString("N2")</span>
-                                            </div>
-                                            <p class="card-text text-muted small mb-2 text-truncate-2">@item.Description</p>
+                                </div>
 
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted"><i class="far fa-clock me-1"></i> ~@item.PrepTimeMinutes min</small>
+                                <!-- Card Footer: Price & Add Button -->
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                                    <span class="price-tag-orange">Rs. @item.Price.ToString("N2")</span>
 
-                                                <div id="item-action-@item.Id">
-                                                    @if (item.IsAvailable)
-                                                    {
-                                                        <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold add-to-cart-btn"
-                                                                data-id="@item.Id" data-name="@item.Name" data-price="@item.Price">
-                                                            <i class="fas fa-plus me-1"></i> Add
-                                                        </button>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-danger text-uppercase px-2 py-1">Unavailable</span>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div id="item-btn-container-@item.Id">
+                                        @if (item.IsAvailable)
+                                        {
+                                            <button class="btn btn-terracotta btn-sm rounded-pill px-4 py-2 add-to-cart-btn"
+                                                    data-id="@item.Id" data-name="@item.Name" data-price="@item.Price">
+                                                <i class="fas fa-plus me-1"></i> Add
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary text-uppercase px-3 py-2 rounded-pill">Sold Out</span>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -103,96 +148,131 @@
             </div>
         </div>
 
-        <!-- Per Category Tabs -->
-        @foreach (var cat in Model.Categories)
-        {
-            <div class="tab-pane fade" id="cat-@cat.Id" role="tabpanel">
-                <div class="row g-3">
-                    @foreach (var item in cat.FoodItems)
-                    {
-                        <div class="col-md-6 food-card-wrapper" data-name="@item.Name.ToLower()">
-                            <div class="card h-100 border-0 shadow-sm rounded-3 food-card overflow-hidden">
-                                <div class="row g-0 h-100 align-items-center">
-                                    <div class="col-4 p-2 text-center bg-light">
-                                        <div class="ratio ratio-1x1 rounded-3 overflow-hidden bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center">
-                                            <i class="fas fa-utensils fa-2x text-secondary opacity-50"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-8">
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title fw-bold text-dark mb-1 fs-6">@item.Name</h5>
-                                            <p class="card-text text-muted small mb-2">@item.Description</p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="fw-bold text-primary">Rs. @item.Price.ToString("N2")</span>
-                                                @if (item.IsAvailable)
-                                                {
-                                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold add-to-cart-btn"
-                                                            data-id="@item.Id" data-name="@item.Name" data-price="@item.Price">
-                                                        <i class="fas fa-plus me-1"></i> Add
-                                                    </button>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger text-uppercase px-2 py-1">Unavailable</span>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
+        <!-- RIGHT COLUMN: ORDER SUMMARY SIDEBAR (col-lg-4) -->
+        <div class="col-lg-4">
+            <div class="order-summary-sidebar p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark">
+                            🧾 Table @Model.Table.TableNumber Summary
+                        </h5>
+                        <small class="text-muted">@Model.Table.Location – Active Tab</small>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning rounded-pill px-3 py-2 fw-bold" id="sidebarItemBadge">
+                        0 Items
+                    </span>
                 </div>
+
+                <hr class="my-3 text-muted opacity-25" />
+
+                <!-- ITEMIZED CART LIST -->
+                <div id="sidebarCartItemsList" class="mb-3" style="max-height: 280px; overflow-y: auto;">
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-shopping-basket fa-2x mb-2 opacity-50 d-block"></i>
+                        <p class="small mb-0">Your table order cart is empty.</p>
+                        <small class="text-muted">Select dishes from the menu to add items.</small>
+                    </div>
+                </div>
+
+                <!-- SPECIAL CHEF INSTRUCTION -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-dark mb-1">
+                        ✍️ Special Chef Instruction:
+                    </label>
+                    <textarea id="customerNotes" class="form-control rounded-3 border small" rows="2" placeholder="e.g. Less spicy, serve all dishes together..."></textarea>
+                </div>
+
+                <!-- PRICE BREAKDOWN -->
+                <div class="bg-light p-3 rounded-3 mb-4 border">
+                    <div class="d-flex justify-content-between mb-1 small text-muted">
+                        <span>Subtotal</span>
+                        <span class="fw-semibold text-dark" id="sidebarSubtotal">Rs. 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small text-muted">
+                        <span>Service Charge (10%)</span>
+                        <span class="fw-semibold text-dark" id="sidebarServiceCharge">Rs. 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small text-muted">
+                        <span>Govt Tax (VAT 0%)</span>
+                        <span class="fw-semibold text-dark">Rs. 0.00</span>
+                    </div>
+                    <hr class="my-2" />
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-dark fs-6">Total Payable</span>
+                        <span class="fw-bold fs-4" style="color: #d9531e;" id="sidebarGrandTotal">Rs. 0.00</span>
+                    </div>
+                </div>
+
+                <!-- CONFIRM ORDER BUTTON -->
+                <button type="button" class="btn btn-terracotta w-100 btn-lg shadow-sm" id="btnConfirmOrderToKitchen">
+                    🍴 Confirm Order to Kitchen
+                </button>
+                <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">
+                    Directly dispatched to Kitchen Display KDS
+                </small>
             </div>
-        }
-    </div>
-</div>
-
-<!-- Floating Mobile Cart Bar -->
-<div id="floatingCartBar" class="fixed-bottom bg-dark text-white p-3 shadow-lg border-top d-none" style="z-index: 1050;">
-    <div class="container d-flex justify-content-between align-items-center" style="max-width: 900px;">
-        <div>
-            <span class="badge bg-primary me-2 fs-6" id="cartBadgeCount">0 Items</span>
-            <span class="fw-bold fs-5 text-warning" id="cartBarTotal">Rs. 0.00</span>
         </div>
-        <button class="btn btn-warning btn-lg fw-bold rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#cartModal">
-            View Cart <i class="fas fa-shopping-basket ms-2"></i>
-        </button>
+    </div>
+
+    <!-- BOTTOM PAGE FOOTER -->
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top text-muted small">
+        <div>
+            <strong style="color: #d9531e;">Smart Hotel & Restaurant Cloud POS</strong> – Tableside Service Edition
+        </div>
+        <div>
+            Session Protected • System Real-time Connected via SignalR
+        </div>
     </div>
 </div>
 
-<!-- Cart Modal -->
-<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 rounded-4 shadow">
-            <div class="modal-header bg-primary text-white rounded-top-4">
-                <h5 class="modal-header-title fw-bold modal-title" id="cartModalLabel">
-                    <i class="fas fa-shopping-cart me-2"></i> Your Order Cart - @Model.Table.TableNumber
+<!-- 4-DIGIT SMS OTP VERIFICATION MODAL -->
+<div class="modal fade" id="otpVerifyModal" tabindex="-1" aria-labelledby="otpVerifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header bg-dark text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" id="otpVerifyModalLabel">
+                    <i class="fas fa-mobile-alt text-warning me-2"></i> Phone Number SMS Verification
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <div id="cartItemsContainer">
-                    <!-- Cart Items injected via JS -->
+                <!-- STEP 1: Enter Phone Number -->
+                <div id="otpStep1">
+                    <div class="alert alert-primary py-2 px-3 small mb-3 border-0 rounded-3">
+                        <i class="fas fa-shield-alt me-1"></i> Enter your mobile phone number for order verification & receipt tracking.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Customer Name</label>
+                        <input type="text" id="otpCustomerName" class="form-control form-control-lg fw-bold" placeholder="e.g. Rahul" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mobile Phone Number</label>
+                        <input type="tel" id="otpCustomerPhone" class="form-control form-control-lg fw-bold" placeholder="e.g. 077 123 4567" required />
+                    </div>
+                    <button type="button" class="btn btn-terracotta w-100 btn-lg shadow" id="sendOtpCodeBtn">
+                        <i class="fas fa-paper-plane me-2"></i> Send 4-Digit SMS Code
+                    </button>
                 </div>
 
-                <div class="mt-4">
-                    <label class="form-label fw-bold"><i class="fas fa-comment-dots me-1"></i> Special Requests / Table Notes</label>
-                    <textarea id="customerNotes" class="form-control" rows="2" placeholder="e.g. Less spicy, bring extra water glasses..."></textarea>
+                <!-- STEP 2: Enter 4-Digit OTP Code -->
+                <div id="otpStep2" class="d-none">
+                    <div class="alert alert-warning py-2 px-3 small mb-3 border-0 rounded-3" id="simulatedSmsToast">
+                        <!-- Simulated SMS Toast inserted here -->
+                    </div>
+                    <div class="mb-3 text-center">
+                        <label class="form-label fw-bold d-block">Enter 4-Digit SMS OTP Code</label>
+                        <input type="text" id="otpCodeInput" class="form-control form-control-lg fw-bold text-center fs-3 tracking-widest border-2 border-warning" maxlength="4" placeholder="••••" required />
+                        <small class="text-muted mt-1 d-block">Verification code sent to <strong id="displayTargetPhone">077XXXXXXX</strong></small>
+                    </div>
+                    <button type="button" class="btn btn-success btn-lg w-100 fw-bold rounded-pill shadow" id="verifyOtpAndOrderBtn">
+                        <i class="fas fa-check-circle me-2"></i> Verify OTP & Send Order
+                    </button>
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted" onclick="resendOtpCode()">
+                            <i class="fas fa-redo me-1"></i> Resend OTP Code
+                        </button>
+                    </div>
                 </div>
-
-                <hr />
-
-                <div class="d-flex justify-content-between align-items-center fs-5 fw-bold">
-                    <span>Estimated Total (Incl. Service Charge):</span>
-                    <span class="text-primary fs-4" id="modalGrandTotal">Rs. 0.00</span>
-                </div>
-            </div>
-            <div class="modal-footer bg-light rounded-bottom-4">
-                <button type="button" class="btn btn-outline-secondary fw-bold rounded-pill" data-bs-dismiss="modal">Continue Ordering</button>
-                <button type="button" class="btn btn-success btn-lg fw-bold rounded-pill px-4 shadow-sm" id="placeOrderBtn">
-                    <i class="fas fa-paper-plane me-2"></i> Place Order Now
-                </button>
             </div>
         </div>
     </div>
@@ -201,19 +281,68 @@
 @section Scripts {
 <script>
     let cart = [];
-    const tableId = @Model.Table.Id;
+    let selectedTableId = @Model.Table.Id;
+    let currentMenuMode = 'daily';
+    let activeCategory = 'all';
 
-    // Search filter
-    document.getElementById('foodSearchInput').addEventListener('keyup', function() {
-        let query = this.value.toLowerCase();
+    let savedCustomerName = localStorage.getItem('pannaum_customer_name') || '';
+    let savedCustomerPhone = localStorage.getItem('pannaum_customer_phone') || '';
+
+    function changeTableSelection(newTableId) {
+        selectedTableId = parseInt(newTableId);
+        window.location.href = `/order/customer?tableId=${selectedTableId}`;
+    }
+
+    function switchMenuType(mode) {
+        currentMenuMode = mode;
+        let btnDaily = document.getElementById('btnDailyMenu');
+        let btnRegular = document.getElementById('btnRegularMenu');
+
+        if (mode === 'daily') {
+            btnDaily.className = 'btn btn-terracotta flex-fill';
+            btnRegular.className = 'btn btn-terracotta-outline flex-fill';
+        } else {
+            btnDaily.className = 'btn btn-terracotta-outline flex-fill';
+            btnRegular.className = 'btn btn-terracotta flex-fill';
+        }
+
+        applyMenuFilters();
+    }
+
+    function filterCategory(catId) {
+        activeCategory = catId;
+        document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+        let activePill = document.getElementById(`pill-${catId}`);
+        if (activePill) activePill.classList.add('active');
+
+        applyMenuFilters();
+    }
+
+    function applyMenuFilters() {
+        let searchQuery = document.getElementById('foodSearchInput').value.toLowerCase();
         let wrappers = document.querySelectorAll('.food-card-wrapper');
+
         wrappers.forEach(w => {
             let name = w.getAttribute('data-name');
-            w.style.display = name.includes(query) ? '' : 'none';
-        });
-    });
+            let isDaily = w.getAttribute('data-daily') === 'true';
+            let category = w.getAttribute('data-category');
 
-    // Add to cart event
+            let matchesSearch = name.includes(searchQuery);
+            let matchesMode = (currentMenuMode === 'daily') ? isDaily : (!isDaily);
+            let matchesCategory = (activeCategory === 'all') || (category === activeCategory);
+
+            if (matchesSearch && matchesMode && matchesCategory) {
+                w.style.display = '';
+            } else {
+                w.style.display = 'none';
+            }
+        });
+    }
+
+    document.getElementById('foodSearchInput').addEventListener('keyup', applyMenuFilters);
+    applyMenuFilters();
+
+    // Add to Cart
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             let id = parseInt(this.getAttribute('data-id'));
@@ -227,29 +356,30 @@
                 cart.push({ foodItemId: id, name: name, price: price, quantity: 1, specialInstructions: '' });
             }
 
-            updateCartUI();
+            playNotificationChime();
+            updateSidebarCartUI();
         });
     });
 
-    function updateCartUI() {
+    function updateSidebarCartUI() {
         let totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
         let subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        let estTotal = subtotal * 1.10; // Service charge
+        let serviceCharge = subtotal * 0.10;
+        let grandTotal = subtotal + serviceCharge;
 
-        let cartBar = document.getElementById('floatingCartBar');
-        if (totalCount > 0) {
-            cartBar.classList.remove('d-none');
-            document.getElementById('cartBadgeCount').innerText = `${totalCount} ${totalCount === 1 ? 'Item' : 'Items'}`;
-            document.getElementById('cartBarTotal').innerText = `Rs. ${estTotal.toFixed(2)}`;
-            document.getElementById('modalGrandTotal').innerText = `Rs. ${estTotal.toFixed(2)}`;
-        } else {
-            cartBar.classList.add('d-none');
-        }
+        document.getElementById('sidebarItemBadge').innerText = `${totalCount} ${totalCount === 1 ? 'Item' : 'Items'}`;
+        document.getElementById('sidebarSubtotal').innerText = `Rs. ${subtotal.toFixed(2)}`;
+        document.getElementById('sidebarServiceCharge').innerText = `Rs. ${serviceCharge.toFixed(2)}`;
+        document.getElementById('sidebarGrandTotal').innerText = `Rs. ${grandTotal.toFixed(2)}`;
 
-        // Render modal list
-        let container = document.getElementById('cartItemsContainer');
+        let container = document.getElementById('sidebarCartItemsList');
         if (cart.length === 0) {
-            container.innerHTML = '<p class="text-muted text-center my-4">Your cart is currently empty.</p>';
+            container.innerHTML = `
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-shopping-basket fa-2x mb-2 opacity-50 d-block"></i>
+                    <p class="small mb-0">Your table order cart is empty.</p>
+                    <small class="text-muted">Select dishes from the menu to add items.</small>
+                </div>`;
             return;
         }
 
@@ -257,21 +387,22 @@
         cart.forEach((item, index) => {
             let itemTotal = item.price * item.quantity;
             html += `
-                <div class="list-group-item px-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="list-group-item px-0 py-2 border-bottom">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="fw-bold mb-0">${item.name}</h6>
-                            <small class="text-primary fw-bold">Rs. ${item.price.toFixed(2)} each</small>
+                            <h6 class="fw-bold mb-0 text-dark small">${item.name}</h6>
+                            <small style="color: #d9531e;" class="fw-bold">Rs. ${itemTotal.toFixed(2)}</small>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-sm btn-outline-secondary rounded-circle px-2 py-0 me-2" onclick="changeQty(${index}, -1)">-</button>
-                            <span class="fw-bold px-2">${item.quantity}</span>
-                            <button class="btn btn-sm btn-outline-secondary rounded-circle px-2 py-0 ms-2" onclick="changeQty(${index}, 1)">+</button>
-                            <span class="fw-bold text-dark ms-3 min-width-80 text-end">Rs. ${itemTotal.toFixed(2)}</span>
-                        </div>
+                        <a href="javascript:void(0)" class="text-danger small fw-bold text-decoration-none ms-2" onclick="removeCartItem(${index})">Remove</a>
                     </div>
-                    <input type="text" class="form-control form-control-sm mt-2" placeholder="Item special instructions (e.g. less sauce)"
-                           value="${item.specialInstructions}" onchange="updateNote(${index}, this.value)" />
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="d-inline-flex align-items-center border rounded-pill bg-light px-2 py-1">
+                            <button class="btn btn-sm btn-link text-dark p-0 me-2 text-decoration-none fw-bold" onclick="changeQty(${index}, -1)">-</button>
+                            <span class="fw-bold small px-1">${item.quantity}</span>
+                            <button class="btn btn-sm btn-link text-dark p-0 ms-2 text-decoration-none fw-bold" onclick="changeQty(${index}, 1)">+</button>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.75rem;">Rs. ${item.price.toFixed(2)} each</small>
+                    </div>
                 </div>
             `;
         });
@@ -284,29 +415,107 @@
         if (cart[index].quantity <= 0) {
             cart.splice(index, 1);
         }
-        updateCartUI();
+        updateSidebarCartUI();
     }
 
-    function updateNote(index, text) {
-        cart[index].specialInstructions = text;
+    function removeCartItem(index) {
+        cart.splice(index, 1);
+        updateSidebarCartUI();
     }
 
-    // Submit Order
-    document.getElementById('placeOrderBtn').addEventListener('click', async function() {
-        if (cart.length === 0) return;
+    // Confirm Order Button Click
+    document.getElementById('btnConfirmOrderToKitchen').addEventListener('click', function() {
+        if (cart.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Cart Empty', text: 'Please add at least 1 food item to your order.' });
+            return;
+        }
 
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Submitting Order...';
+        document.getElementById('otpCustomerName').value = savedCustomerName;
+        document.getElementById('otpCustomerPhone').value = savedCustomerPhone;
+
+        document.getElementById('otpStep1').classList.remove('d-none');
+        document.getElementById('otpStep2').classList.add('d-none');
+
+        let otpModal = new bootstrap.Modal(document.getElementById('otpVerifyModal'));
+        otpModal.show();
+    });
+
+    // STEP 1: Send SMS OTP Code
+    document.getElementById('sendOtpCodeBtn').addEventListener('click', async function() {
+        let name = document.getElementById('otpCustomerName').value.trim();
+        let phone = document.getElementById('otpCustomerPhone').value.trim();
+
+        if (!phone || phone.length < 8) {
+            Swal.fire({ icon: 'warning', title: 'Phone Required', text: 'Please enter a valid mobile phone number.' });
+            return;
+        }
+
+        let sendBtn = this;
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Generating Code...';
+
+        try {
+            let res = await fetch('/Order/SendOtp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone })
+            });
+
+            let data = await res.json();
+            if (data.success) {
+                localStorage.setItem('pannaum_customer_name', name);
+                localStorage.setItem('pannaum_customer_phone', phone);
+                savedCustomerName = name;
+                savedCustomerPhone = phone;
+
+                document.getElementById('displayTargetPhone').innerText = phone;
+                document.getElementById('simulatedSmsToast').innerHTML = `
+                    <div class="fw-bold text-dark"><i class="fas fa-sms text-primary me-2"></i> SMS Received:</div>
+                    <div class="fs-5 fw-bold text-success mt-1">Your Verification Code is: <span class="badge bg-warning text-dark fs-4 ms-2">${data.simulatedOtp}</span></div>
+                `;
+
+                document.getElementById('otpStep1').classList.add('d-none');
+                document.getElementById('otpStep2').classList.remove('d-none');
+                document.getElementById('otpCodeInput').value = data.simulatedOtp;
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Server connection error.' });
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Send 4-Digit SMS Code';
+        }
+    });
+
+    function resendOtpCode() {
+        document.getElementById('sendOtpCodeBtn').click();
+    }
+
+    // STEP 2: Verify OTP & Submit Order
+    document.getElementById('verifyOtpAndOrderBtn').addEventListener('click', async function() {
+        let otpCode = document.getElementById('otpCodeInput').value.trim();
+        if (!otpCode || otpCode.length < 4) {
+            Swal.fire({ icon: 'warning', title: 'Enter 4-Digit OTP', text: 'Please enter the 4-digit code.' });
+            return;
+        }
+
+        let verifyBtn = this;
+        verifyBtn.disabled = true;
+        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending Order to Kitchen...';
 
         let notes = document.getElementById('customerNotes').value;
         let payload = {
-            tableId: tableId,
+            tableId: selectedTableId,
+            customerName: savedCustomerName || 'Table Guest',
+            customerPhone: savedCustomerPhone,
+            otpCode: otpCode,
             items: cart.map(x => ({ foodItemId: x.foodItemId, quantity: x.quantity, specialInstructions: x.specialInstructions })),
             customerNotes: notes
         };
 
         try {
-            let response = await fetch('/Order/PlaceOrder', {
+            let response = await fetch('/Order/VerifyAndPlaceOrder', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -315,38 +524,48 @@
             let res = await response.json();
             if (res.success) {
                 cart = [];
-                window.location.href = res.redirectUrl;
+                let otpModalEl = document.getElementById('otpVerifyModal');
+                let otpModal = bootstrap.Modal.getInstance(otpModalEl);
+                if (otpModal) otpModal.hide();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Confirmed to Kitchen!',
+                    text: `Order #${res.orderNumber} dispatched to Kitchen Display KDS. Chef: ${res.assignedStaff}`,
+                    confirmButtonText: 'Track Live Preparation',
+                    confirmButtonColor: '#d9531e'
+                }).then(() => {
+                    window.location.href = res.redirectUrl;
+                });
             } else {
-                alert('Error placing order: ' + res.message);
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Place Order Now';
+                Swal.fire({ icon: 'error', title: 'Verification Failed', text: res.message });
             }
         } catch (err) {
-            alert('Server error. Please try again.');
-            this.disabled = false;
-            this.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Place Order Now';
+            Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Failed to communicate with server.' });
+        } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Verify OTP & Send Order';
         }
     });
 
-    // SignalR Real-Time Availability Listener
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/hotelHub")
         .build();
 
     connection.on("FoodAvailabilityUpdated", function(foodId, foodName, isAvailable) {
-        let actionDiv = document.getElementById(`item-action-${foodId}`);
+        let actionDiv = document.getElementById(`item-btn-container-${foodId}`);
         if (actionDiv) {
             if (isAvailable) {
-                actionDiv.innerHTML = `<button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold add-to-cart-btn" data-id="${foodId}" data-name="${foodName}">+ Add</button>`;
+                actionDiv.innerHTML = `<button class="btn btn-terracotta btn-sm rounded-pill px-4 py-2 add-to-cart-btn" data-id="${foodId}" data-name="${foodName}">+ Add</button>`;
             } else {
-                actionDiv.innerHTML = `<span class="badge bg-danger text-uppercase px-2 py-1">Unavailable</span>`;
-                // Remove from cart if present
+                actionDiv.innerHTML = `<span class="badge bg-secondary text-uppercase px-3 py-2 rounded-pill">Sold Out</span>`;
                 cart = cart.filter(x => x.foodItemId !== foodId);
-                updateCartUI();
+                updateSidebarCartUI();
+                Swal.fire({ icon: 'warning', title: 'Stock Update', text: `'${foodName}' is now sold out.` });
             }
         }
     });
 
-    connection.start().catch(err => console.error(err.toString()));
+    connection.start().catch(err => console.error(err));
 </script>
 }

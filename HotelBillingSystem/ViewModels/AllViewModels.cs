@@ -21,6 +21,7 @@ namespace HotelBillingSystem.ViewModels
     {
         public RestaurantTable Table { get; set; } = null!;
         public TableSession Session { get; set; } = null!;
+        public List<RestaurantTable> AllTables { get; set; } = new List<RestaurantTable>();
         public List<FoodCategory> Categories { get; set; } = new List<FoodCategory>();
         public List<Order> SessionOrders { get; set; } = new List<Order>();
     }
@@ -100,6 +101,7 @@ namespace HotelBillingSystem.ViewModels
         public string ImageUrl { get; set; } = "/images/food-placeholder.png";
 
         public int PrepTimeMinutes { get; set; } = 15;
+        public bool IsDailyMenu { get; set; } = false;
         public bool IsAvailable { get; set; } = true;
         public bool IsActive { get; set; } = true;
     }

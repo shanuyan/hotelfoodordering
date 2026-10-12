@@ -40,21 +40,54 @@ namespace HotelBillingSystem.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            var assignedOrders = await _orderService.GetKitchenAssignedOrdersAsync(user.Id);
+            // Load both Unassigned New Orders and Chef's Active Claimed Orders
+            var unassignedOrders = await _context.Orders
+                .Include(o => o.Table)
+                .Include(o => o.OrderItems)
+                .Where(o => o.Status == OrderStatus.New || o.AssignedKitchenStaffId == null)
+                .OrderBy(o => o.CreatedAt)
+                .ToListAsync();
+
+            var myClaimedOrders = await _orderService.GetKitchenAssignedOrdersAsync(user.Id);
+
             var staffStatus = await _context.KitchenStaffStatuses
                 .FirstOrDefaultAsync(k => k.UserId == user.Id);
 
             var workloads = await _kitchenAssignmentService.GetStaffWorkloadsAsync();
 
+            ViewBag.UnassignedOrders = unassignedOrders;
+
             var viewModel = new KitchenDashboardViewModel
             {
                 KitchenUser = user,
                 CurrentStaffStatus = staffStatus?.CurrentStatus ?? StaffStatus.Available,
-                AssignedActiveOrders = assignedOrders,
+                AssignedActiveOrders = myClaimedOrders,
                 AllStaffWorkloads = workloads
             };
 
             return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ClaimOrder(int orderId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Json(new { success = false, message = "Unauthorized" });
+
+            var result = await _orderService.ClaimOrderAsync(orderId, user.Id);
+            if (!result.Success)
+            {
+                return Json(new { success = false, message = result.ErrorMessage });
+            }
+
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+
+            // SignalR Broadcasts to all Kitchen Chefs & Customer
+            await _hubContext.Clients.Group("Kitchen").SendAsync("OrderClaimedByChef", orderId, result.ClaimedByChefName);
+            await _hubContext.Clients.Group($"Order_{orderId}").SendAsync("OrderStatusChanged", orderId, OrderStatus.Accepted.ToString(), $"Claimed & Accepted by {result.ClaimedByChefName}");
+            await _hubContext.Clients.Group($"Table_{order?.TableId}").SendAsync("OrderStatusChanged", orderId, OrderStatus.Accepted.ToString(), $"Claimed & Accepted by {result.ClaimedByChefName}");
+
+            return Json(new { success = true, chefName = result.ClaimedByChefName });
         }
 
         [HttpPost]

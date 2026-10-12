@@ -3,63 +3,76 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Smart Hotel Management System</title>
+    <title>@ViewData["Title"] - Smart Hotel Billing System</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- FontAwesome 6 -->
+    <!-- FontAwesome 6.4 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
-    <!-- Custom CSS -->
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+    <!-- Custom Enterprise CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm border-bottom">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-2 shadow-sm border-bottom border-primary border-opacity-25">
             <div class="container-fluid px-4">
-                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-utensils me-2"></i> Smart Hotel Billing
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center brand-glow" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-utensils text-warning me-2 fs-3"></i>
+                    <span>Smart Hotel <span class="badge bg-warning text-dark fs-6 ms-1">Billing</span></span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold">
                         @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Index"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Users"><i class="fas fa-users me-1"></i> Users</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Tables"><i class="fas fa-chair me-1"></i> Tables & QR</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Menu"><i class="fas fa-hamburger me-1"></i> Food Menu</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Reports"><i class="fas fa-chart-line me-1"></i> Reports</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Index"><i class="fas fa-chart-line text-warning me-1"></i> Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Users"><i class="fas fa-users-cog text-info me-1"></i> Staff Accounts</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Tables"><i class="fas fa-qrcode text-success me-1"></i> Tables & QR</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Menu"><i class="fas fa-hamburger text-warning me-1"></i> Food Menu</a></li>
+                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Reports"><i class="fas fa-chart-pie text-info me-1"></i> BI Reports</a></li>
                             <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="AuditLogs"><i class="fas fa-history me-1"></i> Audit Logs</a></li>
                         }
                         @if (User.IsInRole("KitchenStaff"))
                         {
-                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Kitchen" asp-action="Index"><i class="fas fa-fire me-1"></i> Kitchen Orders</a></li>
+                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Kitchen" asp-action="Index"><i class="fas fa-fire text-warning me-1"></i> Kitchen KDS Display</a></li>
                         }
                         @if (User.IsInRole("CashierStaff"))
                         {
-                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Cashier" asp-action="Index"><i class="fas fa-cash-register me-1"></i> Cashier Billing</a></li>
+                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Cashier" asp-action="Index"><i class="fas fa-cash-register text-success me-1"></i> Cashier Billing</a></li>
                         }
                     </ul>
-                    <partial name="_LoginPartial" />
+
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Live SignalR State Indicator -->
+                        <span id="signalRStatusBadge" class="badge bg-success bg-opacity-75 rounded-pill px-3 py-2 small fw-semibold" title="Real-time SignalR Connection Active">
+                            <i class="fas fa-wifi me-1"></i> Live SignalR
+                        </span>
+
+                        <partial name="_LoginPartial" />
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
 
-    <main role="main" class="container-fluid px-4 py-3 flex-grow-1">
+    <main role="main" class="container-fluid px-4 py-4 flex-grow-1">
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 border-0 border-start border-4 border-success mb-4" role="alert">
+                <i class="fas fa-check-circle me-2 fs-5 align-middle"></i> <strong>Success!</strong> @TempData["SuccessMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 border-0 border-start border-4 border-danger mb-4" role="alert">
+                <i class="fas fa-exclamation-circle me-2 fs-5 align-middle"></i> <strong>Notice:</strong> @TempData["ErrorMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
@@ -67,18 +80,47 @@
         @RenderBody()
     </main>
 
-    <footer class="border-top footer text-muted bg-white py-3 mt-auto shadow-sm">
-        <div class="container-fluid text-center">
-            <span class="fw-semibold">&copy; @DateTime.UtcNow.Year Smart Hotel & Restaurant Ordering Billing System. Powered by ASP.NET Core & SignalR.</span>
+    <footer class="bg-white border-top py-3 mt-auto shadow-sm">
+        <div class="container-fluid px-4 text-center text-md-between d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <span class="text-muted fw-semibold small">
+                &copy; @DateTime.UtcNow.Year <strong class="text-dark">Smart Hotel Billing System</strong>. Production Grade Solution.
+            </span>
+            <span class="text-muted small mt-2 mt-md-0">
+                <i class="fas fa-shield-alt text-success me-1"></i> Server Active: <code>localhost</code> | EF Core & SignalR Enabled
+            </span>
         </div>
     </footer>
 
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Microsoft SignalR JS Client -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Global Sound Chime Helper -->
+    <script>
+        function playNotificationChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.3); // A5
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch (e) {
+                console.log("Audio play blocked by browser policy");
+            }
+        }
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

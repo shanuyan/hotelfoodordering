@@ -1,35 +1,175 @@
-/* Custom Styles for Pannaum Smart Hotel System */
+/* Pixel-Perfect Terracotta Theme CSS - Smart Hotel Tableside Portal */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
-.hover-shadow {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+:root {
+    --font-primary: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    --brand-orange: #d9531e;
+    --brand-orange-hover: #c44414;
+    --brand-orange-light: #fdf3ef;
+    --bg-body: #f8f9fa;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-light: #e2e8f0;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
 }
 
-.hover-shadow:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+body {
+    font-family: var(--font-primary);
+    background-color: var(--bg-body);
+    color: var(--text-dark);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-.animate-pulse {
-    animation: pulse-animation 1.5s infinite;
+/* Headings */
+h1, h2, h3, h4, h5, h6, .fw-bold {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
-@keyframes pulse-animation {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.05); }
-    100% { opacity: 1; transform: scale(1); }
+/* Top Bar Logo */
+.brand-orange-icon {
+    background-color: #d9531e;
+    color: #ffffff;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.border-dashed {
-    border-style: dashed !important;
+.brand-orange-badge {
+    background-color: #fdf3ef;
+    color: #d9531e;
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid #f8dcd0;
 }
 
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+/* Top Banner Card */
+.top-header-card {
+    background: #ffffff;
+    border: 1px solid #f8e5dd;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
 }
 
-.min-width-80 {
-    min-width: 80px;
+.table-select-box {
+    background: #fdf9f7;
+    border: 1px solid #f4d3c5;
+    border-radius: 16px;
+    padding: 12px 18px;
+}
+
+/* Terracotta Buttons */
+.btn-terracotta {
+    background-color: #d9531e !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 700 !important;
+    border-radius: 14px !important;
+    padding: 12px 24px !important;
+    box-shadow: 0 4px 12px rgba(217, 83, 30, 0.25) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.btn-terracotta:hover {
+    background-color: #c44414 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(217, 83, 30, 0.35) !important;
+}
+
+.btn-terracotta-outline {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+    font-weight: 600 !important;
+    border-radius: 14px !important;
+    padding: 12px 24px !important;
+}
+
+/* Category Pills */
+.category-pill {
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border-radius: 999px;
+    padding: 6px 18px;
+    transition: all 0.2s ease;
+}
+
+.category-pill.active {
+    background-color: #d9531e !important;
+    color: #ffffff !important;
+    border-color: #d9531e !important;
+    box-shadow: 0 4px 10px rgba(217, 83, 30, 0.25);
+}
+
+/* Food Cards */
+.food-card-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.food-card-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    border-color: #f4c4b2;
+}
+
+.food-img-container {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+/* Order Summary Sticky Sidebar */
+.order-summary-sidebar {
+    position: sticky;
+    top: 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Price Highlight */
+.price-tag-orange {
+    color: #d9531e;
+    font-weight: 800;
+    font-size: 1.15rem;
+}
+
+/* Thermal Receipt Styling */
+.thermal-receipt {
+    width: 340px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 24px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #000000;
+    box-shadow: var(--shadow-card);
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.pulse-badge {
+    animation: pulse-badge-anim 1.5s infinite;
+}
+
+@keyframes pulse-badge-anim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
 }

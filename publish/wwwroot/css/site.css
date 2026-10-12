@@ -1,35 +1,144 @@
-/* Custom Styles for Pannaum Smart Hotel System */
-
-.hover-shadow {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+/* Enterprise Hotel Billing System Styling */
+:root {
+    --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    --accent-gold: #f39c12;
+    --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+    --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --card-shadow-hover: 0 20px 30px -10px rgba(0, 0, 0, 0.15);
 }
 
-.hover-shadow:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
 }
 
-.animate-pulse {
-    animation: pulse-animation 1.5s infinite;
+/* Navbar */
+.navbar-custom {
+    background: var(--primary-gradient);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-@keyframes pulse-animation {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.05); }
-    100% { opacity: 1; transform: scale(1); }
+.brand-glow {
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
-.border-dashed {
-    border-style: dashed !important;
+/* Cards */
+.card-custom {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+.card-custom:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-3px);
 }
 
-.min-width-80 {
-    min-width: 80px;
+/* KDS Urgency Cards */
+.kds-card-normal {
+    border-top: 5px solid #10b981 !important;
+}
+
+.kds-card-warning {
+    border-top: 5px solid #f59e0b !important;
+    animation: kds-pulse-yellow 2s infinite;
+}
+
+.kds-card-urgent {
+    border-top: 5px solid #ef4444 !important;
+    animation: kds-pulse-red 1.2s infinite;
+}
+
+@keyframes kds-pulse-yellow {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+@keyframes kds-pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Badges & Pulsing Indicators */
+.pulse-badge {
+    animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.95); opacity: 0.9; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.9; }
+}
+
+/* Floating Cart Drawer */
+.floating-cart-bar {
+    background: #0f172a;
+    border-radius: 1.5rem 1.5rem 0 0;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+}
+
+/* Thermal Receipt Styling */
+.thermal-receipt {
+    width: 320px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #000;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+.receipt-dashed {
+    border-bottom: 2px dashed #000;
+    margin: 10px 0;
+}
+
+/* Food Card Image Placeholder */
+.food-img-container {
+    height: 140px;
+    object-fit: cover;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background-color: #f1f5f9;
+}
+
+/* Status Timeline */
+.timeline-step {
+    position: relative;
+    z-index: 1;
+}
+
+.timeline-step .icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin: 0 auto 8px auto;
+}
+
+.timeline-step.completed .icon-box {
+    background-color: #10b981;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.timeline-step.active .icon-box {
+    background-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    animation: pulse-ring 1.5s infinite;
+}
+
+.timeline-step.pending .icon-box {
+    background-color: #e2e8f0;
+    color: #94a3b8;
 }

@@ -20,7 +20,7 @@ namespace HotelBillingSystem.Services
             _kitchenAssignmentService = kitchenAssignmentService;
         }
 
-        public async Task<CreateOrderResult> CreateOrderAsync(int tableId, List<CartItemRequest> items, string customerNotes)
+        public async Task<CreateOrderResult> CreateOrderAsync(int tableId, string customerName, string customerPhone, List<CartItemRequest> items, string customerNotes)
         {
             if (items == null || !items.Any())
             {
@@ -99,6 +99,8 @@ namespace HotelBillingSystem.Services
                 OrderNumber = orderNumber,
                 TableSessionId = session.Id,
                 TableId = tableId,
+                CustomerName = string.IsNullOrEmpty(customerName) ? "Table Guest" : customerName,
+                CustomerPhone = customerPhone ?? string.Empty,
                 Status = OrderStatus.New,
                 CustomerNotes = customerNotes ?? string.Empty,
                 SubTotal = subTotal,
@@ -162,6 +164,57 @@ namespace HotelBillingSystem.Services
                 .Where(o => o.TableSessionId == sessionId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
+        }
+
+        public async Task<ClaimOrderResult> ClaimOrderAsync(int orderId, string kitchenStaffUserId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.AssignedKitchenStaff)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+            {
+                return new ClaimOrderResult { Success = false, ErrorMessage = "Order not found." };
+            }
+
+            if (order.AssignedKitchenStaffId != null && order.AssignedKitchenStaffId != kitchenStaffUserId)
+            {
+                string chefName = order.AssignedKitchenStaff?.FullName ?? "another chef";
+                return new ClaimOrderResult
+                {
+                    Success = false,
+                    ErrorMessage = $"Order #{order.OrderNumber} was already claimed by {chefName}.",
+                    ClaimedByChefName = chefName
+                };
+            }
+
+            var chef = await _context.Users.FindAsync(kitchenStaffUserId);
+            string chefFullName = chef?.FullName ?? "Kitchen Chef";
+
+            var oldStatus = order.Status;
+            order.AssignedKitchenStaffId = kitchenStaffUserId;
+            order.AssignedAt = DateTime.UtcNow;
+            order.AcceptedAt = DateTime.UtcNow;
+            order.Status = OrderStatus.Accepted;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            _context.OrderStatusHistories.Add(new OrderStatusHistory
+            {
+                OrderId = order.Id,
+                PreviousStatus = oldStatus,
+                NewStatus = OrderStatus.Accepted,
+                ChangedByUserId = kitchenStaffUserId,
+                ChangedAt = DateTime.UtcNow,
+                Remarks = $"Claimed by {chefFullName} (First-come, First-served)"
+            });
+
+            await _context.SaveChangesAsync();
+
+            return new ClaimOrderResult
+            {
+                Success = true,
+                ClaimedByChefName = chefFullName
+            };
         }
 
         public async Task<List<Order>> GetKitchenAssignedOrdersAsync(string kitchenStaffUserId)
@@ -228,12 +281,21 @@ namespace HotelBillingSystem.Services
             return true;
         }
 
+        public async Task<List<OrderStatusHistory>> GetOrderStatusHistoryAsync(int orderId)
+        {
+            return await _context.OrderStatusHistories
+                .Include(h => h.ChangedByUser)
+                .Where(h => h.OrderId == orderId)
+                .OrderBy(h => h.ChangedAt)
+                .ToListAsync();
+        }
+
         public async Task<bool> RequestBillAsync(int tableId)
         {
-            var session = await _tableService.GetActiveSessionAsync(tableId);
-            if (session == null) return false;
+            var activeSession = await _tableService.GetActiveSessionAsync(tableId);
+            if (activeSession == null) return false;
 
-            session.IsBillRequested = true;
+            activeSession.IsBillRequested = true;
             await _context.SaveChangesAsync();
             return true;
         }

@@ -1,11 +1,11 @@
 @model HotelBillingSystem.ViewModels.OrderTrackingViewModel
 @{
-    ViewData["Title"] = $"Track Order {Model.Order.OrderNumber}";
+    ViewData["Title"] = $"Track Order #{Model.Order.OrderNumber}";
     Layout = "_Layout";
 }
 
 <div class="container my-3" style="max-width: 800px;">
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
         <div class="card-header bg-primary text-white p-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -13,69 +13,62 @@
                     <span class="badge bg-light text-primary px-3 py-2 fw-bold fs-6">@Model.Order.Table?.TableNumber</span>
                 </div>
                 <div>
-                    <span id="currentStatusBadge" class="badge bg-success fs-6 px-3 py-2">@Model.Order.Status</span>
+                    <span id="currentStatusBadge" class="badge bg-success fs-6 px-3 py-2 pulse-badge">@Model.Order.Status</span>
                 </div>
             </div>
-            <p class="mb-0 mt-2 opacity-75 small"><i class="far fa-clock me-1"></i> Placed at: @Model.Order.CreatedAt.ToString("f")</p>
+            <p class="mb-0 mt-2 opacity-75 small"><i class="far fa-clock me-1"></i> Order Placed: @Model.Order.CreatedAt.ToString("f")</p>
         </div>
 
         <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fas fa-tasks me-2 text-primary"></i> Order Progress</h5>
+            <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-tasks me-2 text-primary"></i> Live Order Preparation Progress</h5>
 
-            <!-- Timeline -->
-            <div class="position-relative m-4">
-                <div class="progress" style="height: 4px;">
-                    @{
-                        int percent = (int)Model.Order.Status * 15;
-                        if (percent > 100) percent = 100;
-                    }
-                    <div id="statusProgressBar" class="progress-bar bg-success" role="progressbar" style="width: @(percent)%;"></div>
+            <!-- Step-by-Step Progress Timeline -->
+            @{
+                int statusInt = (int)Model.Order.Status;
+            }
+            <div class="row g-2 text-center mb-4 py-2 bg-light rounded-4 border">
+                <div class="col-2 timeline-step @(statusInt >= 1 ? "completed" : "pending")">
+                    <div class="icon-box"><i class="fas fa-receipt"></i></div>
+                    <div class="small fw-bold">Received</div>
                 </div>
-
-                <div class="d-flex justify-content-between position-relative mt-n3">
-                    <div class="text-center">
-                        <span class="btn btn-sm btn-success rounded-circle p-2"><i class="fas fa-check"></i></span>
-                        <div class="small fw-bold mt-1">Received</div>
-                    </div>
-                    <div class="text-center">
-                        <span class="btn btn-sm @((int)Model.Order.Status >= 2 ? "btn-success" : "btn-secondary") rounded-circle p-2"><i class="fas fa-user-check"></i></span>
-                        <div class="small fw-bold mt-1">Assigned</div>
-                    </div>
-                    <div class="text-center">
-                        <span class="btn btn-sm @((int)Model.Order.Status >= 3 ? "btn-success" : "btn-secondary") rounded-circle p-2"><i class="fas fa-thumbs-up"></i></span>
-                        <div class="small fw-bold mt-1">Accepted</div>
-                    </div>
-                    <div class="text-center">
-                        <span class="btn btn-sm @((int)Model.Order.Status >= 4 ? "btn-success" : "btn-secondary") rounded-circle p-2"><i class="fas fa-fire"></i></span>
-                        <div class="small fw-bold mt-1">Preparing</div>
-                    </div>
-                    <div class="text-center">
-                        <span class="btn btn-sm @((int)Model.Order.Status >= 5 ? "btn-success" : "btn-secondary") rounded-circle p-2"><i class="fas fa-bell"></i></span>
-                        <div class="small fw-bold mt-1">Ready</div>
-                    </div>
-                    <div class="text-center">
-                        <span class="btn btn-sm @((int)Model.Order.Status >= 6 ? "btn-success" : "btn-secondary") rounded-circle p-2"><i class="fas fa-concierge-bell"></i></span>
-                        <div class="small fw-bold mt-1">Served</div>
-                    </div>
+                <div class="col-2 timeline-step @(statusInt >= 2 ? "completed" : "pending")">
+                    <div class="icon-box"><i class="fas fa-user-check"></i></div>
+                    <div class="small fw-bold">Assigned</div>
+                </div>
+                <div class="col-2 timeline-step @(statusInt >= 3 ? "completed" : "pending")">
+                    <div class="icon-box"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="small fw-bold">Accepted</div>
+                </div>
+                <div class="col-2 timeline-step @(statusInt >= 4 ? (statusInt == 4 ? "active" : "completed") : "pending")">
+                    <div class="icon-box"><i class="fas fa-fire"></i></div>
+                    <div class="small fw-bold">Preparing</div>
+                </div>
+                <div class="col-2 timeline-step @(statusInt >= 5 ? (statusInt == 5 ? "active" : "completed") : "pending")">
+                    <div class="icon-box"><i class="fas fa-bell"></i></div>
+                    <div class="small fw-bold">Ready</div>
+                </div>
+                <div class="col-2 timeline-step @(statusInt >= 6 ? "completed" : "pending")">
+                    <div class="icon-box"><i class="fas fa-concierge-bell"></i></div>
+                    <div class="small fw-bold">Served</div>
                 </div>
             </div>
 
-            <!-- Assigned Staff Info -->
-            <div class="alert alert-info d-flex align-items-center rounded-3 my-4">
-                <i class="fas fa-user-chef fa-2x me-3 text-info"></i>
+            <!-- Assigned Kitchen Staff -->
+            <div class="alert alert-info d-flex align-items-center rounded-3 my-4 shadow-sm border-0 border-start border-4 border-info">
+                <i class="fas fa-user-tie fa-2x me-3 text-info"></i>
                 <div>
-                    <div class="fw-bold">Kitchen Staff Assigned:</div>
-                    <div class="text-dark">@(Model.Order.AssignedKitchenStaff?.FullName ?? "Chef Sanath (Smart Workload Balanced)")</div>
+                    <div class="fw-bold text-dark">Kitchen Chef Assigned:</div>
+                    <div class="text-primary fw-semibold fs-6">@(Model.Order.AssignedKitchenStaff?.FullName ?? "Chef Sanath (Smart Workload Balanced)")</div>
                 </div>
             </div>
 
-            <!-- Items Ordered Table -->
-            <h5 class="fw-bold mb-3"><i class="fas fa-utensils me-2 text-primary"></i> Items Ordered</h5>
+            <!-- Ordered Dishes List -->
+            <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-utensils me-2 text-primary"></i> Ordered Items</h5>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
-                            <th>Item</th>
+                            <th>Food Item</th>
                             <th class="text-center">Qty</th>
                             <th class="text-end">Unit Price</th>
                             <th class="text-end">Subtotal</th>
@@ -86,15 +79,15 @@
                         {
                             <tr>
                                 <td>
-                                    <div class="fw-bold">@item.FoodName</div>
+                                    <div class="fw-bold text-dark">@item.FoodName</div>
                                     @if (!string.IsNullOrEmpty(item.SpecialInstructions))
                                     {
-                                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i> @item.SpecialInstructions</small>
+                                        <small class="text-danger fw-semibold"><i class="fas fa-info-circle me-1"></i> @item.SpecialInstructions</small>
                                     }
                                 </td>
-                                <td class="text-center fw-bold">@item.Quantity</td>
+                                <td class="text-center fw-bold fs-6">@item.Quantity</td>
                                 <td class="text-end">Rs. @item.UnitPrice.ToString("N2")</td>
-                                <td class="text-end fw-bold">Rs. @item.SubTotal.ToString("N2")</td>
+                                <td class="text-end fw-bold text-primary">Rs. @item.SubTotal.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>
@@ -108,20 +101,20 @@
                             <td class="text-end fw-semibold">Rs. @Model.Order.ServiceCharge.ToString("N2")</td>
                         </tr>
                         <tr class="table-active">
-                            <td colspan="3" class="text-end fw-bold fs-5">Order Total:</td>
-                            <td class="text-end fw-bold fs-5 text-primary">Rs. @Model.Order.TotalAmount.ToString("N2")</td>
+                            <td colspan="3" class="text-end fw-bold fs-5">Grand Total:</td>
+                            <td class="text-end fw-bold fs-4 text-primary">Rs. @Model.Order.TotalAmount.ToString("N2")</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
             <!-- Action Buttons -->
-            <div class="d-flex justify-content-between mt-4">
+            <div class="d-flex justify-content-between align-items-center mt-4">
                 <a asp-action="Menu" asp-route-tableId="@Model.Order.TableId" class="btn btn-outline-primary fw-bold rounded-pill px-4">
-                    <i class="fas fa-plus me-1"></i> Order More Food
+                    <i class="fas fa-plus me-1"></i> Add More Food Items
                 </a>
 
-                <button id="requestBillBtn" class="btn btn-warning btn-lg text-dark fw-bold rounded-pill px-4 shadow-sm" onclick="requestBill()">
+                <button id="requestBillBtn" class="btn btn-warning btn-lg text-dark fw-bold rounded-pill px-4 shadow" onclick="requestBill()">
                     <i class="fas fa-receipt me-2"></i> Request Bill
                 </button>
             </div>
@@ -140,12 +133,18 @@
 
     connection.on("OrderStatusChanged", function(oId, newStatus, remarks) {
         if (oId === orderId) {
+            playNotificationChime();
             document.getElementById('currentStatusBadge').innerText = newStatus;
 
-            // Reload page on major status update to refresh timeline icons
-            setTimeout(() => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Order Status Update',
+                text: `Order status changed to: ${newStatus}`,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
                 window.location.reload();
-            }, 1000);
+            });
         }
     });
 
@@ -157,7 +156,7 @@
     async function requestBill() {
         let btn = document.getElementById('requestBillBtn');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending Request...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Requesting...';
 
         try {
             let res = await fetch(`/Order/RequestBill?tableId=${tableId}`, { method: 'POST' });
@@ -165,14 +164,19 @@
             if (data.success) {
                 btn.className = "btn btn-success btn-lg text-white fw-bold rounded-pill px-4";
                 btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Bill Requested!';
-                alert(data.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Bill Requested!',
+                    text: 'Cashier notified. A staff member will attend to your table shortly.',
+                    confirmButtonColor: '#10b981'
+                });
             } else {
-                alert('Error: ' + data.message);
+                Swal.fire({ icon: 'error', title: 'Request Failed', text: data.message });
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-receipt me-2"></i> Request Bill';
             }
         } catch (e) {
-            alert('Failed to send request. Please try again.');
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Server connection error.' });
             btn.disabled = false;
         }
     }

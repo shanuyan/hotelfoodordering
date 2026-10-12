@@ -7,32 +7,51 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Add DbContext (Supports XAMPP MySQL with local fallback)
+// 1. Add DbContext (Supports Supabase PostgreSQL, XAMPP MySQL, with SQLite local fallback)
+var supabaseConnectionString = builder.Configuration.GetConnectionString("SupabasePostgres");
 var xamppConnectionString = builder.Configuration.GetConnectionString("XamppMySql");
 var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    bool mySqlConfigured = false;
+    bool dbConfigured = false;
 
-    if (!string.IsNullOrEmpty(xamppConnectionString))
+    // Check if Supabase PostgreSQL password is set
+    if (!string.IsNullOrEmpty(supabaseConnectionString) &&
+        supabaseConnectionString.Contains("Host=") &&
+        !supabaseConnectionString.Contains("YOUR_DATABASE_PASSWORD"))
     {
         try
         {
-            // AutoDetect MySQL / MariaDB Server Version
-            var serverVersion = ServerVersion.AutoDetect(xamppConnectionString);
-            options.UseMySql(xamppConnectionString, serverVersion);
-            mySqlConfigured = true;
+            options.UseNpgsql(supabaseConnectionString);
+            dbConfigured = true;
+            Console.WriteLine("[Supabase Database] Successfully connected to Supabase PostgreSQL.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[XAMPP MySQL Warning] Could not connect to MySQL at localhost:3306 ({ex.Message}). Falling back to SQLite.");
+            Console.WriteLine($"[Supabase Warning] Could not connect to Supabase PostgreSQL ({ex.Message}).");
         }
     }
 
-    if (!mySqlConfigured)
+    if (!dbConfigured && !string.IsNullOrEmpty(xamppConnectionString))
+    {
+        try
+        {
+            var serverVersion = ServerVersion.AutoDetect(xamppConnectionString);
+            options.UseMySql(xamppConnectionString, serverVersion);
+            dbConfigured = true;
+            Console.WriteLine("[XAMPP MySQL Database] Successfully connected to XAMPP MySQL.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[XAMPP MySQL Warning] Could not connect to MySQL at localhost:3306 ({ex.Message}).");
+        }
+    }
+
+    if (!dbConfigured)
     {
         options.UseSqlite(defaultConnectionString ?? "Data Source=pannaum_hotel.db");
+        Console.WriteLine("[SQLite Database] Using local embedded SQLite database.");
     }
 });
 

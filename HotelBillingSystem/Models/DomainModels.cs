@@ -141,6 +141,7 @@ namespace HotelBillingSystem.Models
         public string ImageUrl { get; set; } = "/images/food-placeholder.png";
 
         public int PrepTimeMinutes { get; set; } = 15;
+        public bool IsDailyMenu { get; set; } = false; // true = Daily Menu, false = Regular Menu
         public bool IsAvailable { get; set; } = true;
         public bool IsActive { get; set; } = true;
 
@@ -170,6 +171,12 @@ namespace HotelBillingSystem.Models
         public virtual ApplicationUser? AssignedKitchenStaff { get; set; }
 
         public OrderStatus Status { get; set; } = OrderStatus.New;
+
+        [StringLength(100)]
+        public string CustomerName { get; set; } = string.Empty;
+
+        [StringLength(30)]
+        public string CustomerPhone { get; set; } = string.Empty;
 
         [StringLength(500)]
         public string CustomerNotes { get; set; } = string.Empty;

@@ -39,7 +39,7 @@ namespace HotelBillingSystem.Tests
             };
 
             // Act
-            var result = await orderService.CreateOrderAsync(1, items, "Test note");
+            var result = await orderService.CreateOrderAsync(1, "Guest Rahul", "0771234567", items, "Test note");
 
             // Assert
             Assert.False(result.Success);
@@ -66,7 +66,7 @@ namespace HotelBillingSystem.Tests
             };
 
             // Act
-            var result = await orderService.CreateOrderAsync(1, items, "Extra spicy");
+            var result = await orderService.CreateOrderAsync(1, "Guest Rahul", "0771234567", items, "Extra spicy");
 
             // Assert
             Assert.True(result.Success);

@@ -117,28 +117,26 @@ namespace HotelBillingSystem.Data
 
                 var foodItems = new List<FoodItem>
                 {
-                    // Rice
-                    new FoodItem { CategoryId = riceCat.Id, Name = "Chicken Fried Rice", Description = "Basmati rice wok-fried with juicy chicken chunks and fresh veg.", Price = 1200.00m, PrepTimeMinutes = 15, IsAvailable = true, ImageUrl = "/images/chicken_rice.jpg" },
-                    new FoodItem { CategoryId = riceCat.Id, Name = "Seafood Mixed Rice", Description = "Special fried rice with prawns, cuttlefish, and fried eggs.", Price = 1500.00m, PrepTimeMinutes = 20, IsAvailable = true, ImageUrl = "/images/seafood_rice.jpg" },
-                    new FoodItem { CategoryId = riceCat.Id, Name = "Egg Fried Rice", Description = "Classic egg fried rice served with chili paste and gravy.", Price = 850.00m, PrepTimeMinutes = 12, IsAvailable = true, ImageUrl = "/images/egg_rice.jpg" },
+                    // Rice (Regular & Daily Specials)
+                    new FoodItem { CategoryId = riceCat.Id, Name = "Chicken Fried Rice", Description = "Basmati rice wok-fried with juicy chicken chunks and fresh veg.", Price = 1200.00m, PrepTimeMinutes = 15, IsDailyMenu = false, IsAvailable = true, ImageUrl = "/images/chicken_rice.jpg" },
+                    new FoodItem { CategoryId = riceCat.Id, Name = "Today's Chef Special Seafood Biryani", Description = "Daily Special: Royal Basmati Biryani cooked with jumbo prawns and cuttlefish.", Price = 1650.00m, PrepTimeMinutes = 20, IsDailyMenu = true, IsAvailable = true, ImageUrl = "/images/seafood_rice.jpg" },
+                    new FoodItem { CategoryId = riceCat.Id, Name = "Egg Fried Rice", Description = "Classic egg fried rice served with chili paste and gravy.", Price = 850.00m, PrepTimeMinutes = 12, IsDailyMenu = false, IsAvailable = true, ImageUrl = "/images/egg_rice.jpg" },
 
                     // Kottu
-                    new FoodItem { CategoryId = kottuCat.Id, Name = "Chicken Kottu", Description = "Shredded roti stir-fried with roast chicken, egg and spices.", Price = 1100.00m, PrepTimeMinutes = 15, IsAvailable = true, ImageUrl = "/images/chicken_kottu.jpg" },
-                    new FoodItem { CategoryId = kottuCat.Id, Name = "Cheese Chicken Kottu", Description = "Rich creamy melted cheese over hot chicken kottu.", Price = 1450.00m, PrepTimeMinutes = 18, IsAvailable = true, ImageUrl = "/images/cheese_kottu.jpg" },
-                    new FoodItem { CategoryId = kottuCat.Id, Name = "Mutton Kottu", Description = "Spicy roasted mutton kottu with thick gravy.", Price = 1800.00m, PrepTimeMinutes = 20, IsAvailable = false, ImageUrl = "/images/mutton_kottu.jpg" },
+                    new FoodItem { CategoryId = kottuCat.Id, Name = "Chicken Kottu", Description = "Shredded roti stir-fried with roast chicken, egg and spices.", Price = 1100.00m, PrepTimeMinutes = 15, IsDailyMenu = false, IsAvailable = true, ImageUrl = "/images/chicken_kottu.jpg" },
+                    new FoodItem { CategoryId = kottuCat.Id, Name = "Today's Melted Cheese Roast Chicken Kottu", Description = "Daily Special: Rich creamy melted cheese over hot roast chicken kottu.", Price = 1500.00m, PrepTimeMinutes = 18, IsDailyMenu = true, IsAvailable = true, ImageUrl = "/images/cheese_kottu.jpg" },
 
                     // Noodles
-                    new FoodItem { CategoryId = noodleCat.Id, Name = "Chicken Fried Noodles", Description = "Egg noodles tossed with shredded chicken and chili paste.", Price = 1050.00m, PrepTimeMinutes = 15, IsAvailable = true, ImageUrl = "/images/chicken_noodles.jpg" },
-                    new FoodItem { CategoryId = noodleCat.Id, Name = "Veg Garlic Noodles", Description = "Stir-fried yellow noodles with garlic butter and vegetables.", Price = 800.00m, PrepTimeMinutes = 12, IsAvailable = true, ImageUrl = "/images/veg_noodles.jpg" },
+                    new FoodItem { CategoryId = noodleCat.Id, Name = "Chicken Fried Noodles", Description = "Egg noodles tossed with shredded chicken and chili paste.", Price = 1050.00m, PrepTimeMinutes = 15, IsDailyMenu = false, IsAvailable = true, ImageUrl = "/images/chicken_noodles.jpg" },
+                    new FoodItem { CategoryId = noodleCat.Id, Name = "Today's Spicy Garlic Prawn Noodles", Description = "Daily Special: Wok-tossed noodles with garlic butter prawns.", Price = 1400.00m, PrepTimeMinutes = 15, IsDailyMenu = true, IsAvailable = true, ImageUrl = "/images/prawn_noodles.jpg" },
 
                     // Beverages
-                    new FoodItem { CategoryId = bevCat.Id, Name = "Fresh Lime Juice", Description = "Chilled fresh lime juice with mint.", Price = 300.00m, PrepTimeMinutes = 5, IsAvailable = true, ImageUrl = "/images/lime_juice.jpg" },
-                    new FoodItem { CategoryId = bevCat.Id, Name = "Chocolate Milkshake", Description = "Thick chocolate ice cream milkshake.", Price = 650.00m, PrepTimeMinutes = 8, IsAvailable = true, ImageUrl = "/images/choc_shake.jpg" },
-                    new FoodItem { CategoryId = bevCat.Id, Name = "Iced Coffee", Description = "Traditional Sri Lankan chilled iced coffee.", Price = 400.00m, PrepTimeMinutes = 5, IsAvailable = true, ImageUrl = "/images/iced_coffee.jpg" },
+                    new FoodItem { CategoryId = bevCat.Id, Name = "Fresh Lime Juice", Description = "Chilled fresh lime juice with mint.", Price = 300.00m, PrepTimeMinutes = 5, IsDailyMenu = false, IsAvailable = true, ImageUrl = "/images/lime_juice.jpg" },
+                    new FoodItem { CategoryId = bevCat.Id, Name = "Today's Tropical Mango Smoothie", Description = "Daily Special: Fresh ripe mango blended with honey and milk.", Price = 550.00m, PrepTimeMinutes = 8, IsDailyMenu = true, IsAvailable = true, ImageUrl = "/images/mango_shake.jpg" },
 
                     // Desserts
-                    new FoodItem { CategoryId = dessertCat.Id, Name = "Fruit Salad with Ice Cream", Description = "Tropical fresh fruit salad topped with vanilla ice cream.", Price = 500.00m, PrepTimeMinutes = 10, IsAvailable = true, ImageUrl = "/images/fruit_salad.jpg" },
-                    new FoodItem { CategoryId = dessertCat.Id, Name = "Watalappan", Description = "Traditional coconut milk and jaggery custard with cashews.", Price = 450.00m, PrepTimeMinutes = 5, IsAvailable = true, ImageUrl = "/images/watalappan.jpg" }
+                    new FoodItem { CategoryId = dessertCat.Id, Name = "Fruit Salad with Ice Cream", Description = "Tropical fresh fruit salad topped with vanilla ice cream.", Price = 500.00m, PrepTimeMinutes = 10, IsDailyMenu = false, IsAvailable = true, ImageUrl = "/images/fruit_salad.jpg" },
+                    new FoodItem { CategoryId = dessertCat.Id, Name = "Today's Special Watalappan Pudding", Description = "Daily Special: Traditional coconut milk and jaggery custard with cashews.", Price = 450.00m, PrepTimeMinutes = 5, IsDailyMenu = true, IsAvailable = true, ImageUrl = "/images/watalappan.jpg" }
                 };
 
                 context.FoodItems.AddRange(foodItems);

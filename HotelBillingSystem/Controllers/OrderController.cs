@@ -1,15 +1,34 @@
+using HotelBillingSystem.Data;
 using HotelBillingSystem.Hubs;
 using HotelBillingSystem.Models;
 using HotelBillingSystem.Services;
 using HotelBillingSystem.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelBillingSystem.Controllers
 {
     public class PlaceOrderRequest
     {
         public int TableId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public List<CartItemRequest> Items { get; set; } = new List<CartItemRequest>();
+        public string CustomerNotes { get; set; } = string.Empty;
+    }
+
+    public class SendOtpRequest
+    {
+        public string Phone { get; set; } = string.Empty;
+    }
+
+    public class VerifyOtpOrderRequest
+    {
+        public int TableId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public string OtpCode { get; set; } = string.Empty;
         public List<CartItemRequest> Items { get; set; } = new List<CartItemRequest>();
         public string CustomerNotes { get; set; } = string.Empty;
     }
@@ -36,35 +55,24 @@ namespace HotelBillingSystem.Controllers
             _hubContext = hubContext;
         }
 
-        // Endpoint triggered by QR Scan: /order/table/{token}
-        [HttpGet("order/table/{token}")]
-        public async Task<IActionResult> Table(string token)
-        {
-            var table = await _tableService.GetTableByTokenAsync(token);
-            if (table == null)
-            {
-                return View("Error", new { Message = "Invalid or expired QR code for this table." });
-            }
-
-            var session = await _tableService.GetOrCreateActiveSessionAsync(table.Id);
-
-            HttpContext.Session.SetInt32("TableId", table.Id);
-            HttpContext.Session.SetInt32("SessionId", session.Id);
-
-            return RedirectToAction("Menu", new { tableId = table.Id });
-        }
-
         [HttpGet]
-        public async Task<IActionResult> Menu(int? tableId)
+        public async Task<IActionResult> Customer(int? tableId)
         {
             int tId = tableId ?? HttpContext.Session.GetInt32("TableId") ?? 1;
+            HttpContext.Session.SetInt32("TableId", tId);
 
             var table = await _tableService.GetTableByIdAsync(tId);
+            if (table == null)
+            {
+                table = (await _tableService.GetAllTablesAsync()).FirstOrDefault();
+            }
+
             if (table == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
+            var allTables = await _tableService.GetAllTablesAsync();
             var session = await _tableService.GetOrCreateActiveSessionAsync(table.Id);
             var categories = await _menuService.GetActiveCategoriesWithItemsAsync(availableOnly: true);
             var sessionOrders = await _orderService.GetOrdersByTableSessionAsync(session.Id);
@@ -73,32 +81,76 @@ namespace HotelBillingSystem.Controllers
             {
                 Table = table,
                 Session = session,
+                AllTables = allTables,
                 Categories = categories,
                 SessionOrders = sessionOrders
             };
 
-            return View(viewModel);
+            return View("Menu", viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request)
+        public IActionResult SendOtp([FromBody] SendOtpRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Phone) || request.Phone.Trim().Length < 8)
+            {
+                return Json(new { success = false, message = "Please enter a valid mobile phone number." });
+            }
+
+            var random = new Random();
+            string generatedOtp = random.Next(1000, 9999).ToString();
+
+            HttpContext.Session.SetString("Otp_Phone", request.Phone.Trim());
+            HttpContext.Session.SetString("Otp_Code", generatedOtp);
+            HttpContext.Session.SetString("Otp_Expiry", DateTime.UtcNow.AddMinutes(5).ToString("o"));
+
+            return Json(new
+            {
+                success = true,
+                message = $"4-Digit SMS verification code generated.",
+                simulatedOtp = generatedOtp
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyAndPlaceOrder([FromBody] VerifyOtpOrderRequest request)
         {
             if (request == null || !request.Items.Any())
             {
                 return Json(new { success = false, message = "Cart items cannot be empty." });
             }
 
+            string? savedOtp = HttpContext.Session.GetString("Otp_Code");
+            string? savedPhone = HttpContext.Session.GetString("Otp_Phone");
+            string? expiryStr = HttpContext.Session.GetString("Otp_Expiry");
+
+            bool isOtpValid = false;
+            if (!string.IsNullOrEmpty(savedOtp) && savedOtp == request.OtpCode?.Trim())
+            {
+                if (DateTime.TryParse(expiryStr, out var expiry) && expiry > DateTime.UtcNow)
+                {
+                    isOtpValid = true;
+                }
+            }
+
+            if (!isOtpValid)
+            {
+                return Json(new { success = false, message = "Invalid or expired 4-digit SMS OTP code. Please request a new code." });
+            }
+
             int tableId = request.TableId > 0 ? request.TableId : HttpContext.Session.GetInt32("TableId") ?? 1;
 
-            var result = await _orderService.CreateOrderAsync(tableId, request.Items, request.CustomerNotes);
+            var result = await _orderService.CreateOrderAsync(tableId, request.CustomerName, request.CustomerPhone, request.Items, request.CustomerNotes);
 
             if (!result.Success || result.Order == null)
             {
                 return Json(new { success = false, message = result.ErrorMessage });
             }
 
+            HttpContext.Session.SetString("IsPhoneVerified", "true");
+            HttpContext.Session.Remove("Otp_Code");
+
             // Real-Time SignalR Broadcasts
-            // 1. Notify Assigned Kitchen Staff & Kitchen Group
             await _hubContext.Clients.Group("Kitchen").SendAsync("ReceiveNewKitchenOrder", new
             {
                 orderId = result.Order.Id,
@@ -112,16 +164,19 @@ namespace HotelBillingSystem.Controllers
                 customerNotes = result.Order.CustomerNotes
             });
 
-            // 2. Notify Cashier & Admin
-            await _hubContext.Clients.Group("Cashier").SendAsync("NewOrderPlaced", result.Order.OrderNumber, result.Order.Table?.TableNumber);
-            await _hubContext.Clients.Group("Admin").SendAsync("NewOrderPlaced", result.Order.OrderNumber, result.Order.Table?.TableNumber);
+            await _hubContext.Clients.Group("Cashier").SendAsync("ReceiveCashierOrderNotification", new
+            {
+                orderId = result.Order.Id,
+                tableNumber = result.Order.Table?.TableNumber,
+                totalAmount = result.Order.TotalAmount
+            });
 
             return Json(new
             {
                 success = true,
                 orderId = result.Order.Id,
                 orderNumber = result.Order.OrderNumber,
-                assignedStaff = result.Order.AssignedKitchenStaff?.FullName ?? "Kitchen Staff",
+                assignedStaff = result.Order.AssignedKitchenStaff?.FullName ?? "Kitchen Chef",
                 redirectUrl = Url.Action("Track", "Order", new { id = result.Order.Id })
             });
         }
@@ -132,55 +187,28 @@ namespace HotelBillingSystem.Controllers
             var order = await _orderService.GetOrderByIdAsync(id);
             if (order == null)
             {
-                return NotFound();
+                return RedirectToAction("Customer");
             }
+
+            var history = await _orderService.GetOrderStatusHistoryAsync(id);
 
             var viewModel = new OrderTrackingViewModel
             {
                 Order = order,
-                StatusHistory = order.StatusHistory.OrderBy(h => h.ChangedAt).ToList()
+                StatusHistory = history
             };
 
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> RequestBill(int tableId)
+        public async Task<IActionResult> RequestBill(int orderId)
         {
-            int tId = tableId > 0 ? tableId : HttpContext.Session.GetInt32("TableId") ?? 1;
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            if (order == null) return Json(new { success = false, message = "Order not found" });
 
-            var table = await _tableService.GetTableByIdAsync(tId);
-            var session = await _tableService.GetActiveSessionAsync(tId);
-
-            if (session == null)
-            {
-                return Json(new { success = false, message = "No active table session found." });
-            }
-
-            await _orderService.RequestBillAsync(tId);
-
-            // SignalR notify Cashier & Admin
-            await _hubContext.Clients.Group("Cashier").SendAsync("BillRequestedNotification", tId, table?.TableNumber ?? $"Table {tId}", session.Id);
-            await _hubContext.Clients.Group("Admin").SendAsync("BillRequestedNotification", tId, table?.TableNumber ?? $"Table {tId}", session.Id);
-
-            return Json(new { success = true, message = "Bill request sent to cashier! A staff member will attend to your table shortly." });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Receipt(int billId)
-        {
-            var bill = await _billingService.GetBillByIdAsync(billId);
-            if (bill == null) return NotFound();
-
-            var viewModel = new BillInvoiceViewModel
-            {
-                Bill = bill,
-                Session = bill.TableSession!,
-                Table = bill.Table!,
-                Orders = bill.TableSession?.Orders.ToList() ?? new List<Order>()
-            };
-
-            return View(viewModel);
+            await _hubContext.Clients.Group("Cashier").SendAsync("BillRequestedForTable", order.TableId, order.Table?.TableNumber);
+            return Json(new { success = true, message = "Bill request sent to Cashier." });
         }
     }
 }

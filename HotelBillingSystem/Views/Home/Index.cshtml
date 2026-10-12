@@ -1,123 +1,98 @@
 ﻿@{
-    ViewData["Title"] = "Home Portal";
+    ViewData["Title"] = "Hotel Staff Portal";
+    Layout = "_Layout";
 }
 
-<div class="p-4 mb-4 bg-primary text-white rounded-3 shadow">
-    <div class="container-fluid py-3">
-        <h1 class="display-5 fw-bold"><i class="fas fa-qrcode me-2"></i> Smart QR Hotel Ordering & Billing System</h1>
-        <p class="col-md-8 fs-5">Integrated Smart QR Ordering, Automated Kitchen Workload Balancing, Real-time Customer Order Tracking, Cashier Billing, and Admin Business Intelligence.</p>
+<!-- Hotel Overview Banner -->
+<div class="card border-0 rounded-4 overflow-hidden mb-4 text-white shadow-lg" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+    <div class="card-body p-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-warning text-dark fw-bold text-uppercase px-3 py-2 mb-3 rounded-pill">
+                    <i class="fas fa-hotel me-1"></i> Smart Hotel & Restaurant
+                </span>
+                <h1 class="display-4 fw-bold mb-2">Hotel Staff Management Portal</h1>
+                <p class="fs-5 text-light opacity-90 mb-4">Dedicated operational portal for Kitchen Staff (Chefs) and Cashier Billing Staff.</p>
+
+                <div class="d-flex flex-wrap gap-4 text-light small">
+                    <div><i class="fas fa-map-marker-alt text-warning me-2 fs-5"></i> No 123, Beach Road, Colombo</div>
+                    <div><i class="fas fa-phone-alt text-success me-2 fs-5"></i> +94 11 234 5678</div>
+                    <div><i class="fas fa-clock text-info me-2 fs-5"></i> Open Daily: 07:00 AM - 11:00 PM</div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                <div class="bg-white bg-opacity-10 p-4 rounded-4 backdrop-blur border border-white border-opacity-10">
+                    <i class="fas fa-user-shield fa-3x text-warning mb-3"></i>
+                    <h5 class="fw-bold mb-1">Staff Access Only</h5>
+                    <p class="small text-light opacity-75 mb-3">Authorized Kitchen & Cashier Terminals</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-warning text-dark fw-bold rounded-pill px-4 shadow">
+                        <i class="fas fa-sign-in-alt me-1"></i> Staff Login
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row g-4 mb-5">
-    <!-- QR Simulator Card -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-shadow">
-            <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3 text-primary">
-                    <i class="fas fa-qrcode fa-3x"></i>
+<!-- Staff Portals Grid -->
+<div class="row g-4 mb-4">
+    <!-- Kitchen Staff Portal Card -->
+    <div class="col-md-6">
+        <div class="card card-custom h-100 bg-white border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 text-center">
+                <div class="rounded-circle bg-warning bg-opacity-10 p-4 d-inline-block mb-3 text-warning">
+                    <i class="fas fa-fire fa-4x"></i>
                 </div>
-                <h4 class="card-title fw-bold">Customer QR Simulator</h4>
-                <p class="card-text text-muted fs-6">Simulate scanning a QR code on a restaurant table to open the mobile food menu.</p>
-                <div class="dropdown mt-3">
-                    <button class="btn btn-primary w-100 dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown">
-                        Select Table to Order
-                    </button>
-                    <ul class="dropdown-menu w-100 shadow">
-                        <li><a class="dropdown-item" href="/order/table/table-token-01"><i class="fas fa-chair me-2"></i> Table 01 (Main Hall)</a></li>
-                        <li><a class="dropdown-item" href="/order/table/table-token-02"><i class="fas fa-chair me-2"></i> Table 02 (Main Hall)</a></li>
-                        <li><a class="dropdown-item" href="/order/table/table-token-03"><i class="fas fa-chair me-2"></i> Table 03 (Main Hall)</a></li>
-                        <li><a class="dropdown-item" href="/order/table/table-token-05"><i class="fas fa-chair me-2"></i> Table 05 (Garden View)</a></li>
-                        <li><a class="dropdown-item" href="/order/table/table-token-08"><i class="fas fa-chair me-2"></i> Table 08 (VIP Section)</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+                <h3 class="fw-bold text-dark mb-2">Kitchen Staff KDS Terminal</h3>
+                <p class="text-muted mb-4">Smart workload-balanced KDS terminal for kitchen chefs. Review assigned orders, urgency timers, and advance order preparation status.</p>
 
-    <!-- Kitchen Display Card -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-shadow">
-            <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-warning bg-opacity-10 p-3 d-inline-block mb-3 text-warning">
-                    <i class="fas fa-fire fa-3x"></i>
-                </div>
-                <h4 class="card-title fw-bold">Kitchen Dashboard</h4>
-                <p class="card-text text-muted fs-6">Smart workload-balanced kitchen portal for accepting, preparing, and completing orders.</p>
-                <a asp-controller="Kitchen" asp-action="Index" class="btn btn-warning w-100 fw-bold mt-3">
-                    Open Kitchen Portal <i class="fas fa-arrow-right ms-1"></i>
+                <a asp-controller="Kitchen" asp-action="Index" class="btn btn-warning text-dark btn-lg w-100 fw-bold rounded-pill shadow">
+                    Open Kitchen KDS Terminal <i class="fas fa-arrow-right ms-2"></i>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Cashier Billing Card -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-shadow">
-            <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3 text-success">
-                    <i class="fas fa-cash-register fa-3x"></i>
+    <!-- Cashier Staff Portal Card -->
+    <div class="col-md-6">
+        <div class="card card-custom h-100 bg-white border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 text-center">
+                <div class="rounded-circle bg-success bg-opacity-10 p-4 d-inline-block mb-3 text-success">
+                    <i class="fas fa-cash-register fa-4x"></i>
                 </div>
-                <h4 class="card-title fw-bold">Cashier & Billing</h4>
-                <p class="card-text text-muted fs-6">Process table bills, handle cash/card payments, generate receipts, and close table sessions.</p>
-                <a asp-controller="Cashier" asp-action="Index" class="btn btn-success w-100 fw-bold mt-3">
-                    Open Cashier Portal <i class="fas fa-arrow-right ms-1"></i>
-                </a>
-            </div>
-        </div>
-    </div>
+                <h3 class="fw-bold text-dark mb-2">Cashier Billing Terminal</h3>
+                <p class="text-muted mb-4">Review active tables and bill requests, generate itemized invoices, process cash/card payments, and print thermal receipts.</p>
 
-    <!-- Admin BI Portal Card -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-shadow">
-            <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-danger bg-opacity-10 p-3 d-inline-block mb-3 text-danger">
-                    <i class="fas fa-chart-pie fa-3x"></i>
-                </div>
-                <h4 class="card-title fw-bold">Admin Business Portal</h4>
-                <p class="card-text text-muted fs-6">Supervise operation, manage users, food items, QR codes, and view sales BI reports.</p>
-                <a asp-controller="Admin" asp-action="Index" class="btn btn-danger w-100 fw-bold mt-3">
-                    Open Admin Dashboard <i class="fas fa-arrow-right ms-1"></i>
+                <a asp-controller="Cashier" asp-action="Index" class="btn btn-success btn-lg w-100 fw-bold rounded-pill shadow">
+                    Open Cashier Billing Terminal <i class="fas fa-arrow-right ms-2"></i>
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row bg-white p-4 rounded shadow-sm border">
-    <div class="col-12">
-        <h4 class="fw-bold mb-3"><i class="fas fa-key me-2 text-primary"></i> Quick Demo Staff Credentials</h4>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Role</th>
-                        <th>Email / Username</th>
-                        <th>Password</th>
-                        <th>Access Privileges</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="badge bg-danger">Admin</span></td>
-                        <td><code>admin@hotel.com</code></td>
-                        <td><code>Admin@123</code></td>
-                        <td>Full System Access, User Mgmt, QR Mgmt, Reports, BI Charts, Audit Logs</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge bg-warning text-dark">Kitchen Staff</span></td>
-                        <td><code>kitchen1@hotel.com</code></td>
-                        <td><code>Kitchen@123</code></td>
-                        <td>Smart Kitchen Order Assignment, Status Advance (Accept, Prep, Ready, Served)</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge bg-success">Cashier Staff</span></td>
-                        <td><code>cashier1@hotel.com</code></td>
-                        <td><code>Cashier@123</code></td>
-                        <td>Bill Generation, Payment Processing, Receipt Generation, Session Closure</td>
-                    </tr>
-                </tbody>
-            </table>
+<!-- Active Staff Team Section -->
+<div class="card card-custom bg-white border-0 shadow-sm rounded-4 p-4 mb-4">
+    <h5 class="fw-bold text-dark mb-3"><i class="fas fa-users text-primary me-2"></i> Active Hotel Staff Team Details</h5>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-user-chef me-2"></i> Kitchen Chefs Team</h6>
+                <ul class="mb-0 small text-muted">
+                    <li>Chef Sanath Perera (Head Chef) - <code>kitchen1@hotel.com</code></li>
+                    <li>Chef Kamal Silva - <code>kitchen2@hotel.com</code></li>
+                    <li>Chef Nimal Fernando - <code>kitchen3@hotel.com</code></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-success mb-2"><i class="fas fa-receipt me-2"></i> Cashier Billing Team</h6>
+                <ul class="mb-0 small text-muted">
+                    <li>Cashier Ruwan Mendis - <code>cashier1@hotel.com</code></li>
+                    <li>Cashier Dilani Jayawardena - <code>cashier2@hotel.com</code></li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

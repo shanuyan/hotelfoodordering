@@ -16,14 +16,23 @@ namespace HotelBillingSystem.Services
         public Order? Order { get; set; }
     }
 
+    public class ClaimOrderResult
+    {
+        public bool Success { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
+        public string ClaimedByChefName { get; set; } = string.Empty;
+    }
+
     public interface IOrderService
     {
-        Task<CreateOrderResult> CreateOrderAsync(int tableId, List<CartItemRequest> items, string customerNotes);
+        Task<CreateOrderResult> CreateOrderAsync(int tableId, string customerName, string customerPhone, List<CartItemRequest> items, string customerNotes);
+        Task<ClaimOrderResult> ClaimOrderAsync(int orderId, string kitchenStaffUserId);
         Task<Order?> GetOrderByIdAsync(int orderId);
-        Task<List<Order>> GetOrdersByTableSessionAsync(int sessionCode);
         Task<List<Order>> GetKitchenAssignedOrdersAsync(string kitchenStaffUserId);
+        Task<List<Order>> GetOrdersByTableSessionAsync(int tableSessionId);
+        Task<List<OrderStatusHistory>> GetOrderStatusHistoryAsync(int orderId);
+        Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus, string changedByUserId, string remarks = "");
         Task<List<Order>> GetAllActiveOrdersAsync();
-        Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus, string userId, string remarks = "");
         Task<bool> RequestBillAsync(int tableId);
     }
 }

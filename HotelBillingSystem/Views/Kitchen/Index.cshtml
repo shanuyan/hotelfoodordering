@@ -1,18 +1,19 @@
 @model HotelBillingSystem.ViewModels.KitchenDashboardViewModel
 @{
-    ViewData["Title"] = "Kitchen Staff Dashboard";
+    ViewData["Title"] = "Kitchen KDS Display";
     Layout = "_Layout";
+    var unassignedOrders = (List<HotelBillingSystem.Models.Order>)ViewBag.UnassignedOrders;
 }
 
-<div class="row mb-3 align-items-center">
+<div class="row mb-4 align-items-center bg-white p-3 rounded-4 shadow-sm border">
     <div class="col-md-6">
-        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-fire me-2 text-warning"></i> Kitchen Display & Order Control</h2>
-        <p class="text-muted mb-0">Chef: <strong>@Model.KitchenUser.FullName</strong> | Assigned Workload</p>
+        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-fire me-2 text-warning"></i> Kitchen KDS Order Terminal</h2>
+        <p class="text-muted mb-0">Assigned Chef: <strong class="text-primary">@Model.KitchenUser.FullName</strong></p>
     </div>
     <div class="col-md-6 text-md-end mt-2 mt-md-0">
-        <div class="d-inline-flex align-items-center bg-white p-2 rounded-pill shadow-sm border">
-            <span class="fw-bold me-2 ms-2">My Work Status:</span>
-            <select id="staffStatusSelect" class="form-select form-select-sm fw-bold border-0 bg-light rounded-pill px-3" onchange="updateStaffStatus(this.value)">
+        <div class="d-inline-flex align-items-center bg-light p-2 rounded-pill border">
+            <span class="fw-bold me-2 ms-2 small">My Work Status:</span>
+            <select id="staffStatusSelect" class="form-select form-select-sm fw-bold border-0 bg-white rounded-pill px-3 shadow-sm" onchange="updateStaffStatus(this.value)">
                 <option value="1" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.Available)">🟢 AVAILABLE</option>
                 <option value="2" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.Busy)">🟡 BUSY</option>
                 <option value="4" selected="@(Model.CurrentStaffStatus == HotelBillingSystem.Models.StaffStatus.OnBreak)">☕ ON BREAK</option>
@@ -22,15 +23,77 @@
     </div>
 </div>
 
-<!-- Active Orders Grid -->
-<div class="row g-3" id="kitchenOrdersGrid">
+<!-- SECTION 1: UNASSIGNED ORDERS POOL (FIRST-COME, FIRST-SERVED CLAIMING) -->
+<div class="card bg-warning bg-opacity-10 border-warning border-2 rounded-4 p-4 mb-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0 text-dark">
+            <i class="fas fa-bell text-warning me-2 animate-pulse"></i> Incoming Customer Orders - First Come Claiming Pool
+        </h4>
+        <span class="badge bg-warning text-dark fs-6 rounded-pill px-3 py-2 fw-bold">@unassignedOrders.Count Unclaimed Orders</span>
+    </div>
+    <p class="text-muted small mb-3">All customer orders arrive here. Whichever chef clicks <strong>"Claim & Start Making"</strong> first gets assigned to make the order.</p>
+
+    <div class="row g-3">
+        @if (!unassignedOrders.Any())
+        {
+            <div class="col-12 text-center py-3">
+                <span class="text-muted fw-semibold"><i class="fas fa-check-circle me-1 text-success"></i> No unclaimed orders. All customer orders are currently being prepared.</span>
+            </div>
+        }
+
+        @foreach (var order in unassignedOrders)
+        {
+            <div class="col-md-6 col-lg-4" id="unassigned-card-@order.Id">
+                <div class="card card-custom h-100 bg-white border-warning border-2 shadow-sm rounded-4">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-bold text-warning"><i class="fas fa-chair me-1"></i> @order.Table?.TableNumber</span>
+                        <span class="badge bg-warning text-dark">NEW ORDER</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <code class="fw-bold fs-6">#@order.OrderNumber</code>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i> @order.CreatedAt.ToString("HH:mm:ss")</small>
+                        </div>
+                        @if (!string.IsNullOrEmpty(order.CustomerNotes))
+                        {
+                            <div class="alert alert-warning py-1 px-2 small mb-2 fw-bold">
+                                <i class="fas fa-exclamation-triangle me-1"></i> Note: @order.CustomerNotes
+                            </div>
+                        }
+                        <ul class="list-group list-group-flush mb-3">
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <li class="list-group-item px-0 py-1 d-flex justify-content-between border-0 small">
+                                    <span>@item.FoodName</span>
+                                    <span class="badge bg-primary rounded-pill">x @item.Quantity</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-light p-3 border-top">
+                        <button class="btn btn-warning text-dark btn-lg w-100 fw-bold rounded-pill shadow" onclick="claimOrder(@order.Id)">
+                            <i class="fas fa-hand-pointer me-2"></i> Claim & Start Making
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- SECTION 2: MY CLAIMED ACTIVE ORDERS QUEUE -->
+<div class="row g-4 mb-5" id="kitchenOrdersGrid">
+    <div class="col-12">
+        <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-user-chef me-2 text-primary"></i> My Active Making Queue (@Model.AssignedActiveOrders.Count Orders)</h4>
+    </div>
+
     @if (!Model.AssignedActiveOrders.Any())
     {
-        <div class="col-12 text-center py-5">
-            <div class="card border-0 shadow-sm p-5 rounded-4">
-                <i class="fas fa-utensils fa-4x text-muted mb-3 opacity-50"></i>
-                <h4 class="fw-bold text-muted">No Active Assigned Orders</h4>
-                <p class="text-muted">You have no pending orders in your queue. New orders assigned by the Smart Balancing Algorithm will appear here automatically in real time.</p>
+        <div class="col-12 text-center py-4">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+                <i class="fas fa-utensils fa-3x text-muted mb-2 opacity-50"></i>
+                <h5 class="fw-bold text-muted">No Orders Currently Claimed by You</h5>
+                <p class="text-muted mb-0">Claim orders from the Incoming Orders Pool above to start making them.</p>
             </div>
         </div>
     }
@@ -38,38 +101,38 @@
     @foreach (var order in Model.AssignedActiveOrders)
     {
         double elapsedMinutes = (DateTime.UtcNow - order.CreatedAt).TotalMinutes;
-        string cardBorder = elapsedMinutes > 20 ? "border-danger border-3" : (elapsedMinutes > 10 ? "border-warning border-3" : "border-success border-2");
-        string urgencyBadge = elapsedMinutes > 20 ? "bg-danger" : (elapsedMinutes > 10 ? "bg-warning text-dark" : "bg-success");
-        string urgencyLabel = elapsedMinutes > 20 ? "DELAYED (20m+)" : (elapsedMinutes > 10 ? "WARNING (10m+)" : "NORMAL");
+        string cardUrgencyClass = elapsedMinutes > 20 ? "kds-card-urgent" : (elapsedMinutes > 10 ? "kds-card-warning" : "kds-card-normal");
+        string urgencyBadgeClass = elapsedMinutes > 20 ? "bg-danger" : (elapsedMinutes > 10 ? "bg-warning text-dark" : "bg-success");
+        string urgencyLabel = elapsedMinutes > 20 ? "URGENT (20m+)" : (elapsedMinutes > 10 ? "WARNING (10m+)" : "NORMAL");
 
         <div class="col-md-6 col-lg-4" id="order-card-@order.Id">
-            <div class="card h-100 shadow-sm rounded-4 overflow-hidden @cardBorder">
+            <div class="card card-custom h-100 bg-white overflow-hidden @cardUrgencyClass">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
                     <div>
-                        <h5 class="fw-bold mb-0"><i class="fas fa-chair me-1 text-warning"></i> @order.Table?.TableNumber</h5>
+                        <h5 class="fw-bold mb-0 text-warning"><i class="fas fa-chair me-1"></i> @order.Table?.TableNumber</h5>
                         <small class="text-white-50">Order #@order.OrderNumber</small>
                     </div>
                     <div class="text-end">
-                        <span class="badge @urgencyBadge px-2 py-1 fw-bold">@urgencyLabel</span>
-                        <div class="small text-white-50 mt-1">@order.CreatedAt.ToString("HH:mm:ss")</div>
+                        <span class="badge @urgencyBadgeClass px-2 py-1 fw-bold">@urgencyLabel</span>
+                        <div class="small text-white-50 mt-1"><i class="far fa-clock me-1"></i> @order.CreatedAt.ToString("HH:mm:ss")</div>
                     </div>
                 </div>
 
                 <div class="card-body p-3">
                     @if (!string.IsNullOrEmpty(order.CustomerNotes))
                     {
-                        <div class="alert alert-warning py-1 px-2 small mb-2 fw-bold">
-                            <i class="fas fa-exclamation-circle me-1"></i> Note: @order.CustomerNotes
+                        <div class="alert alert-warning py-2 px-3 small mb-3 fw-bold rounded-3 border-0">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Customer Note: @order.CustomerNotes
                         </div>
                     }
 
-                    <h6 class="fw-bold border-bottom pb-2 text-primary">Items to Prepare:</h6>
+                    <h6 class="fw-bold border-bottom pb-2 text-primary"><i class="fas fa-list-check me-1"></i> Items to Prepare:</h6>
                     <ul class="list-group list-group-flush mb-3">
                         @foreach (var item in order.OrderItems)
                         {
-                            <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom-0">
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
                                 <div>
-                                    <span class="fw-bold fs-6">@item.FoodName</span>
+                                    <span class="fw-bold fs-6 text-dark">@item.FoodName</span>
                                     @if (!string.IsNullOrEmpty(item.SpecialInstructions))
                                     {
                                         <div class="small text-danger fw-semibold"><i class="fas fa-asterisk me-1"></i> @item.SpecialInstructions</div>
@@ -82,33 +145,27 @@
                 </div>
 
                 <div class="card-footer bg-light p-3 border-top">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-semibold small">Current Status:</span>
-                        <span class="badge bg-secondary px-2 py-1" id="status-badge-@order.Id">@order.Status</span>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold small text-muted">Current Status:</span>
+                        <span class="badge bg-secondary px-3 py-1 fs-6" id="status-badge-@order.Id">@order.Status</span>
                     </div>
 
                     <div id="action-buttons-@order.Id" class="d-grid gap-2">
-                        @if (order.Status == HotelBillingSystem.Models.OrderStatus.Assigned || order.Status == HotelBillingSystem.Models.OrderStatus.New)
+                        @if (order.Status == HotelBillingSystem.Models.OrderStatus.Accepted)
                         {
-                            <button class="btn btn-primary fw-bold" onclick="updateOrderStatus(@order.Id, 3)">
-                                <i class="fas fa-check me-1"></i> Accept Order
-                            </button>
-                        }
-                        else if (order.Status == HotelBillingSystem.Models.OrderStatus.Accepted)
-                        {
-                            <button class="btn btn-warning text-dark fw-bold" onclick="updateOrderStatus(@order.Id, 4)">
-                                <i class="fas fa-fire me-1"></i> Start Preparing
+                            <button class="btn btn-warning text-dark btn-lg fw-bold rounded-pill shadow-sm" onclick="updateOrderStatus(@order.Id, 4)">
+                                <i class="fas fa-fire me-1"></i> Start Preparing / Making
                             </button>
                         }
                         else if (order.Status == HotelBillingSystem.Models.OrderStatus.Preparing)
                         {
-                            <button class="btn btn-success fw-bold" onclick="updateOrderStatus(@order.Id, 5)">
-                                <i class="fas fa-bell me-1"></i> Mark as Ready
+                            <button class="btn btn-success btn-lg fw-bold rounded-pill shadow-sm" onclick="updateOrderStatus(@order.Id, 5)">
+                                <i class="fas fa-check-circle me-1"></i> Mark as Finished / Ready
                             </button>
                         }
                         else if (order.Status == HotelBillingSystem.Models.OrderStatus.Ready)
                         {
-                            <button class="btn btn-info text-white fw-bold" onclick="updateOrderStatus(@order.Id, 6)">
+                            <button class="btn btn-info text-white btn-lg fw-bold rounded-pill shadow-sm" onclick="updateOrderStatus(@order.Id, 6)">
                                 <i class="fas fa-concierge-bell me-1"></i> Mark as Served
                             </button>
                         }
@@ -121,6 +178,29 @@
 
 @section Scripts {
 <script>
+    async function claimOrder(orderId) {
+        try {
+            let res = await fetch(`/Kitchen/ClaimOrder?orderId=${orderId}`, { method: 'POST' });
+            let data = await res.json();
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Claimed!',
+                    text: `Order #${orderId} claimed by ${data.chefName}. Added to your queue.`,
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({ icon: 'warning', title: 'Already Claimed', text: data.message });
+                window.location.reload();
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to claim order.' });
+        }
+    }
+
     async function updateOrderStatus(orderId, newStatus) {
         try {
             let res = await fetch(`/Kitchen/UpdateStatus?orderId=${orderId}&newStatus=${newStatus}`, { method: 'POST' });
@@ -128,10 +208,10 @@
             if (data.success) {
                 window.location.reload();
             } else {
-                alert('Error updating order: ' + data.message);
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
             }
         } catch (e) {
-            alert('Failed to connect to server.');
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Server connection error.' });
         }
     }
 
@@ -139,21 +219,25 @@
         try {
             let res = await fetch(`/Kitchen/UpdateStaffStatus?status=${statusValue}`, { method: 'POST' });
             let data = await res.json();
-            if (!data.success) {
-                alert('Failed to update staff status.');
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Status Updated', timer: 1200, showConfirmButton: false });
             }
         } catch (e) {
             console.error(e);
         }
     }
 
-    // Real-Time SignalR Listener
+    // SignalR Real-Time Listener
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/hotelHub")
         .build();
 
     connection.on("ReceiveNewKitchenOrder", function(order) {
-        // Play notification sound / alert and refresh
+        playNotificationChime();
+        window.location.reload();
+    });
+
+    connection.on("OrderClaimedByChef", function(orderId, chefName) {
         window.location.reload();
     });
 

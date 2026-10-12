@@ -4,13 +4,13 @@
     Layout = "_Layout";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border">
     <div>
-        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-tachometer-alt me-2 text-danger"></i> Hotel Operations Monitor</h2>
-        <p class="text-muted mb-0">Live real-time operational overview, staff workloads, and sales metrics</p>
+        <h2 class="fw-bold mb-0 text-dark"><i class="fas fa-chart-line me-2 text-primary"></i> Executive Supervision Dashboard</h2>
+        <p class="text-muted mb-0">Live real-time operational overview, kitchen workload telemetry, and sales metrics</p>
     </div>
-    <a asp-action="Reports" class="btn btn-primary fw-bold rounded-pill px-3">
-        <i class="fas fa-chart-line me-1"></i> Open Full BI Reports
+    <a asp-action="Reports" class="btn btn-primary fw-bold rounded-pill px-4 shadow">
+        <i class="fas fa-chart-pie me-1"></i> Open Full BI Reports
     </a>
 </div>
 
@@ -20,7 +20,7 @@
         <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Today's Sales</h6>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1 small">Today's Sales</h6>
                     <h2 class="fw-bold mb-0">Rs. @Model.Summary.TodaySales.ToString("N0")</h2>
                 </div>
                 <div class="bg-white bg-opacity-25 rounded-circle p-3">
@@ -34,7 +34,7 @@
         <div class="card border-0 shadow-sm rounded-4 bg-success text-white p-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Today's Orders</h6>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1 small">Today's Orders</h6>
                     <h2 class="fw-bold mb-0">@Model.Summary.TodayOrdersCount</h2>
                 </div>
                 <div class="bg-white bg-opacity-25 rounded-circle p-3">
@@ -48,7 +48,7 @@
         <div class="card border-0 shadow-sm rounded-4 bg-warning text-dark p-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Occupied Tables</h6>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1 small">Occupied Tables</h6>
                     <h2 class="fw-bold mb-0">@Model.Summary.OccupiedTablesCount / @(Model.Summary.OccupiedTablesCount + Model.Summary.AvailableTablesCount)</h2>
                 </div>
                 <div class="bg-dark bg-opacity-10 rounded-circle p-3">
@@ -62,11 +62,11 @@
         <div class="card border-0 shadow-sm rounded-4 bg-info text-white p-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-uppercase fw-bold opacity-75 mb-1">Kitchen Staff</h6>
-                    <h2 class="fw-bold mb-0">@Model.Summary.AvailableKitchenStaffCount Available</h2>
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1 small">Kitchen Staff</h6>
+                    <h2 class="fw-bold mb-0">@Model.Summary.AvailableKitchenStaffCount Active</h2>
                 </div>
                 <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                    <i class="fas fa-user-chef fa-2x"></i>
+                    <i class="fas fa-user-tie fa-2x"></i>
                 </div>
             </div>
         </div>
@@ -76,21 +76,21 @@
 <div class="row g-4 mb-4">
     <!-- Active Orders Feed -->
     <div class="col-md-8">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div class="card card-custom bg-white border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-fire text-warning me-2"></i> Live Active Orders Queue</h5>
-                <span class="badge bg-primary rounded-pill">@Model.RecentOrders.Count Active</span>
+                <span class="badge bg-primary rounded-pill px-3 py-2">@Model.RecentOrders.Count Active</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead class="table-dark">
                             <tr>
                                 <th>Order #</th>
                                 <th>Table</th>
-                                <th>Assigned Staff</th>
+                                <th>Assigned Chef</th>
                                 <th>Status</th>
-                                <th>Time</th>
+                                <th>Placed At</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,8 +98,8 @@
                             {
                                 <tr>
                                     <td class="fw-bold"><code>@order.OrderNumber</code></td>
-                                    <td><span class="badge bg-dark">@order.Table?.TableNumber</span></td>
-                                    <td>@(order.AssignedKitchenStaff?.FullName ?? "Unassigned")</td>
+                                    <td><span class="badge bg-secondary">@order.Table?.TableNumber</span></td>
+                                    <td>@(order.AssignedKitchenStaff?.FullName ?? "Chef Sanath")</td>
                                     <td><span class="badge bg-warning text-dark">@order.Status</span></td>
                                     <td>@order.CreatedAt.ToString("HH:mm:ss")</td>
                                 </tr>
@@ -111,11 +111,11 @@
         </div>
     </div>
 
-    <!-- Kitchen Staff Performance & Workload -->
+    <!-- Kitchen Staff Telemetry -->
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-header bg-white py-3">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-user-clock text-info me-2"></i> Kitchen Staff Workload</h5>
+        <div class="card card-custom bg-white border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-user-clock text-info me-2"></i> Kitchen Workload Telemetry</h5>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
@@ -127,7 +127,7 @@
                                 <span class="badge bg-primary rounded-pill">@staff.ActiveOrders Active Orders</span>
                             </div>
                             <div class="small text-muted">
-                                Completed: <strong>@staff.CompletedOrders</strong> | Avg Prep Time: <strong>@staff.AveragePrepMinutes min</strong>
+                                Completed: <strong>@staff.CompletedOrders</strong> | Avg Prep: <strong>@staff.AveragePrepMinutes min</strong>
                             </div>
                         </li>
                     }
@@ -137,10 +137,10 @@
     </div>
 </div>
 
-<!-- Table Occupancy Map -->
-<div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-th me-2 text-primary"></i> Restaurant Table Layout & Status</h5>
+<!-- Table Layout Map -->
+<div class="card card-custom bg-white border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-th me-2 text-primary"></i> Restaurant Table Layout & Real-time Status</h5>
     </div>
     <div class="card-body p-4">
         <div class="row g-3">
