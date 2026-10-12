@@ -331,6 +331,15 @@ p_cur.execute("""
 """, (now, chef2_id))
 print("Kitchen staff statuses updated in Supabase.", flush=True)
 
+# 13. Reset all sequences to MAX(Id) so new orders/items auto-increment without duplicate key errors
+seq_tables = ['Orders', 'OrderItems', 'OrderStatusHistories', 'FoodCategories', 'FoodItems', 'RestaurantTables', 'TableSessions', 'Bills', 'Payments', 'Notifications', 'AuditLogs', 'KitchenStaffStatuses']
+for t in seq_tables:
+    try:
+        p_cur.execute(f'''SELECT setval(pg_get_serial_sequence('"{t}"', 'Id'), COALESCE(MAX("Id"), 1)) FROM "{t}";''')
+    except Exception as sq_err:
+        pass
+print("All auto-increment sequences reset to MAX(Id).", flush=True)
+
 p_conn.close()
 print("All Supabase data committed successfully!", flush=True)
 
