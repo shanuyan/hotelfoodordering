@@ -13,16 +13,33 @@ namespace HotelBillingSystem.Data
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // Ensure DB created
-            await context.Database.EnsureCreatedAsync();
+            // Ensure DB created for SQLite/MySQL only (Supabase PostgreSQL tables are pre-created)
+            try
+            {
+                if (context.Database.ProviderName != null && !context.Database.ProviderName.Contains("Npgsql"))
+                {
+                    await context.Database.EnsureCreatedAsync();
+                }
+            }
+            catch
+            {
+                // Tables already created
+            }
 
             // 1. Roles
             string[] roles = new[] { "Admin", "KitchenStaff", "CashierStaff" };
             foreach (var role in roles)
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                if (!await context.Roles.AnyAsync(r => r.Name == role))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                    try
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                    }
+                    catch
+                    {
+                        // Already exists
+                    }
                 }
             }
 

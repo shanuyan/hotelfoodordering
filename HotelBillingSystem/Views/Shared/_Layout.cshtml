@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,11 +16,15 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-2 shadow-sm border-bottom border-primary border-opacity-25">
-            <div class="container-fluid px-4">
-                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center brand-glow" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-utensils text-warning me-2 fs-3"></i>
-                    <span>Smart Hotel <span class="badge bg-warning text-dark fs-6 ms-1">Billing</span></span>
+        <nav class="navbar navbar-expand-lg navbar-light navbar-custom py-2 shadow-sm">
+            <div class="container-fluid px-lg-4">
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <div class="story-ring-box me-2" style="width: 38px; height: 38px;">
+                        <div class="story-ring-inner w-100 h-100">
+                            <i class="fas fa-utensils text-dark" style="font-size: 0.95rem;"></i>
+                        </div>
+                    </div>
+                    <span><span class="ig-gradient-text">Smart Hotel</span> <span class="badge badge-ig-gradient ms-1">Billing</span></span>
                 </a>
 
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,27 +35,27 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold">
                         @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Index"><i class="fas fa-chart-line text-warning me-1"></i> Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Users"><i class="fas fa-users-cog text-info me-1"></i> Staff Accounts</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Tables"><i class="fas fa-qrcode text-success me-1"></i> Tables & QR</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Menu"><i class="fas fa-hamburger text-warning me-1"></i> Food Menu</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="Reports"><i class="fas fa-chart-pie text-info me-1"></i> BI Reports</a></li>
-                            <li class="nav-item"><a class="nav-link text-white" asp-controller="Admin" asp-action="AuditLogs"><i class="fas fa-history me-1"></i> Audit Logs</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast" asp-controller="Admin" asp-action="Index"><i class="fas fa-chart-line text-primary me-1"></i> Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast" asp-controller="Admin" asp-action="Users"><i class="fas fa-users-cog text-secondary me-1"></i> Staff Accounts</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast" asp-controller="Admin" asp-action="Tables"><i class="fas fa-qrcode text-success me-1"></i> Tables & QR</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast" asp-controller="Admin" asp-action="Menu"><i class="fas fa-hamburger text-warning me-1"></i> Food Menu</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast" asp-controller="Admin" asp-action="Reports"><i class="fas fa-chart-pie text-info me-1"></i> BI Reports</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast" asp-controller="Admin" asp-action="AuditLogs"><i class="fas fa-history text-muted me-1"></i> Audit Logs</a></li>
                         }
                         @if (User.IsInRole("KitchenStaff"))
                         {
-                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Kitchen" asp-action="Index"><i class="fas fa-fire text-warning me-1"></i> Kitchen KDS Display</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast fs-6 fw-bold" asp-controller="Kitchen" asp-action="Index"><i class="fas fa-fire text-danger me-1"></i> Kitchen KDS Display</a></li>
                         }
                         @if (User.IsInRole("CashierStaff"))
                         {
-                            <li class="nav-item"><a class="nav-link text-white fs-5 fw-bold" asp-controller="Cashier" asp-action="Index"><i class="fas fa-cash-register text-success me-1"></i> Cashier Billing</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark-contrast fs-6 fw-bold" asp-controller="Cashier" asp-action="Index"><i class="fas fa-cash-register text-success me-1"></i> Cashier Billing</a></li>
                         }
                     </ul>
 
                     <div class="d-flex align-items-center gap-3">
                         <!-- Live SignalR State Indicator -->
-                        <span id="signalRStatusBadge" class="badge bg-success bg-opacity-75 rounded-pill px-3 py-2 small fw-semibold" title="Real-time SignalR Connection Active">
-                            <i class="fas fa-wifi me-1"></i> Live SignalR
+                        <span id="signalRStatusBadge" class="badge badge-ig-live px-3 py-2 small fw-semibold" title="Real-time SignalR Connection Active">
+                            <i class="fas fa-circle me-1" style="font-size: 0.5rem; vertical-align: middle;"></i> LIVE SYNC
                         </span>
 
                         <partial name="_LoginPartial" />

@@ -23,7 +23,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         try
         {
-            options.UseNpgsql(supabaseConnectionString);
+            options.UseNpgsql(supabaseConnectionString, npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+            });
             dbConfigured = true;
             Console.WriteLine("[Supabase Database] Successfully connected to Supabase PostgreSQL.");
         }

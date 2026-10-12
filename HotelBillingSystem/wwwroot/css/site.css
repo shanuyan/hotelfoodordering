@@ -1,175 +1,366 @@
-/* Pixel-Perfect Terracotta Theme CSS - Smart Hotel Tableside Portal */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+/* ===================================================================
+   INSTAGRAM-INSPIRED MODERN DESIGN SYSTEM - SMART HOTEL BILLING
+   Ultra-High Contrast, Instagram Gradient Accents & Crisp Typography
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --font-primary: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-    --brand-orange: #d9531e;
-    --brand-orange-hover: #c44414;
-    --brand-orange-light: #fdf3ef;
-    --bg-body: #f8f9fa;
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-    --border-light: #e2e8f0;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
-    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+    --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    
+    /* Instagram Signature Colors */
+    --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    --ig-gradient-reverse: linear-gradient(225deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    --ig-gradient-soft: linear-gradient(135deg, rgba(240, 148, 51, 0.1) 0%, rgba(220, 39, 67, 0.1) 50%, rgba(188, 24, 136, 0.1) 100%);
+    --ig-pink: #e1306c;
+    --ig-purple: #833ab4;
+    --ig-orange: #f77737;
+    --ig-yellow: #fcaf45;
+    --ig-blue: #0095f6;
+    --ig-blue-hover: #1877f2;
+
+    /* Ultra-High Contrast Typography */
+    --text-primary: #121214;       /* Deep jet black for maximum readability */
+    --text-secondary: #475569;     /* Legible slate gray */
+    --text-muted: #64748b;         /* Clear meta text */
+    --text-white: #ffffff;
+    
+    /* Instagram Canvas & Surfaces */
+    --bg-canvas: #fafafa;
+    --bg-surface: #ffffff;
+    --border-ig: #e2e8f0;
+    --border-ig-dark: #cbd5e1;
+    --border-subtle: #f1f5f9;
+
+    /* Shadows & Elevations */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-ig-glow: 0 6px 20px rgba(225, 48, 108, 0.28);
 }
 
+/* Base Document Styling */
 body {
     font-family: var(--font-primary);
-    background-color: var(--bg-body);
-    color: var(--text-dark);
-    line-height: 1.5;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headings */
-h1, h2, h3, h4, h5, h6, .fw-bold {
+/* Headings with Instagram Punch & Contrast */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family: var(--font-primary);
+    color: var(--text-primary);
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
 }
 
-/* Top Bar Logo */
-.brand-orange-icon {
-    background-color: #d9531e;
-    color: #ffffff;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+p, span, li, label, div {
+    color: inherit;
+}
+
+/* High-Contrast Readability Utilities */
+.text-dark, .text-dark-contrast {
+    color: var(--text-primary) !important;
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* Instagram Gradient Text */
+.ig-gradient-text {
+    background: var(--ig-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    font-weight: 800;
+}
+
+/* Instagram Story Ring Avatar / Icon */
+.story-ring-box {
+    position: relative;
+    padding: 3px;
+    background: var(--ig-gradient);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.story-ring-inner {
+    background: #ffffff;
+    padding: 2px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.brand-orange-badge {
-    background-color: #fdf3ef;
-    color: #d9531e;
+/* Instagram Modern Navbar */
+.navbar-custom {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid var(--border-ig) !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    color: var(--text-primary) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em;
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    font-size: 0.94rem;
+    padding: 8px 16px !important;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: #f1f5f9;
+    color: var(--ig-pink) !important;
+}
+
+/* Instagram Signature Buttons */
+.btn-instagram, .btn-terracotta {
+    background: var(--ig-gradient) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 10px 22px !important;
+    box-shadow: var(--shadow-ig-glow) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.btn-instagram:hover, .btn-terracotta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(225, 48, 108, 0.4) !important;
+    color: #ffffff !important;
+    filter: brightness(1.05);
+}
+
+.btn-instagram:active, .btn-terracotta:active {
+    transform: translateY(0);
+}
+
+.btn-instagram-blue {
+    background-color: var(--ig-blue) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 10px 22px !important;
+    box-shadow: 0 4px 14px rgba(0, 149, 246, 0.3) !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-instagram-blue:hover {
+    background-color: var(--ig-blue-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 149, 246, 0.4) !important;
+    color: #ffffff !important;
+}
+
+.btn-instagram-outline, .btn-terracotta-outline {
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    border: 1px solid var(--border-ig-dark) !important;
+    border-radius: 12px !important;
+    padding: 10px 22px !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-instagram-outline:hover, .btn-terracotta-outline:hover {
+    background: #f8fafc !important;
+    border-color: var(--ig-pink) !important;
+    color: var(--ig-pink) !important;
+}
+
+/* Instagram Pill Badges & Story Badges */
+.badge-ig-gradient {
+    background: var(--ig-gradient);
+    color: #ffffff;
     font-weight: 700;
-    font-size: 0.72rem;
-    padding: 3px 10px;
+    padding: 5px 12px;
     border-radius: 999px;
-    border: 1px solid #f8dcd0;
+    box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+}
+
+.badge-ig-live {
+    background: linear-gradient(45deg, #e1306c, #fd1d1d);
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 5px 12px;
+    animation: ig-pulse 1.8s infinite;
+}
+
+@keyframes ig-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(225, 48, 108, 0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(225, 48, 108, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(225, 48, 108, 0); }
+}
+
+/* Instagram Cards */
+.card, .ig-card {
+    background: #ffffff;
+    border: 1px solid var(--border-ig);
+    border-radius: 18px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
+}
+
+.card:hover, .ig-card:hover {
+    border-color: #cbd5e1;
 }
 
 /* Top Banner Card */
 .top-header-card {
     background: #ffffff;
-    border: 1px solid #f8e5dd;
+    border: 1px solid var(--border-ig);
     border-radius: 20px;
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-md);
 }
 
 .table-select-box {
-    background: #fdf9f7;
-    border: 1px solid #f4d3c5;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
     border-radius: 16px;
-    padding: 12px 18px;
+    padding: 14px 20px;
+    transition: border-color 0.2s ease;
 }
 
-/* Terracotta Buttons */
-.btn-terracotta {
-    background-color: #d9531e !important;
-    color: #ffffff !important;
-    border: none !important;
-    font-weight: 700 !important;
-    border-radius: 14px !important;
-    padding: 12px 24px !important;
-    box-shadow: 0 4px 12px rgba(217, 83, 30, 0.25) !important;
-    transition: all 0.2s ease-in-out !important;
-}
-
-.btn-terracotta:hover {
-    background-color: #c44414 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(217, 83, 30, 0.35) !important;
-}
-
-.btn-terracotta-outline {
-    background-color: #ffffff !important;
-    color: #1e293b !important;
-    border: 1px solid #e2e8f0 !important;
-    font-weight: 600 !important;
-    border-radius: 14px !important;
-    padding: 12px 24px !important;
+.table-select-box:focus-within {
+    border-color: var(--ig-pink);
+    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15);
 }
 
 /* Category Pills */
 .category-pill {
     background-color: #ffffff;
-    color: #475569;
-    border: 1px solid #e2e8f0;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-ig);
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     border-radius: 999px;
-    padding: 6px 18px;
-    transition: all 0.2s ease;
+    padding: 8px 20px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.category-pill:hover {
+    border-color: var(--ig-pink);
+    color: var(--ig-pink);
+    transform: translateY(-1px);
 }
 
 .category-pill.active {
-    background-color: #d9531e !important;
+    background: var(--ig-gradient) !important;
     color: #ffffff !important;
-    border-color: #d9531e !important;
-    box-shadow: 0 4px 10px rgba(217, 83, 30, 0.25);
+    border-color: transparent !important;
+    box-shadow: 0 4px 14px rgba(225, 48, 108, 0.35);
 }
 
-/* Food Cards */
+/* Food Cards (Instagram Post Style) */
 .food-card-item {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-ig);
+    border-radius: 18px;
+    box-shadow: var(--shadow-sm);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
 }
 
 .food-card-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-    border-color: #f4c4b2;
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: #cbd5e1;
 }
 
-.food-img-container {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 14px;
+/* Price Highlight */
+.price-tag-orange, .price-tag-ig {
+    background: var(--ig-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
 }
 
 /* Order Summary Sticky Sidebar */
 .order-summary-sidebar {
     position: sticky;
-    top: 20px;
+    top: 24px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-ig);
     border-radius: 20px;
-    box-shadow: var(--shadow-card);
-}
-
-/* Price Highlight */
-.price-tag-orange {
-    color: #d9531e;
-    font-weight: 800;
-    font-size: 1.15rem;
+    box-shadow: var(--shadow-md);
 }
 
 /* Thermal Receipt Styling */
 .thermal-receipt {
-    width: 340px;
+    width: 350px;
     margin: 0 auto;
     background: #ffffff;
     padding: 24px;
     font-family: 'Courier New', Courier, monospace;
     color: #000000;
-    box-shadow: var(--shadow-card);
-    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    border-radius: 12px;
     border: 1px solid #cbd5e1;
 }
 
 .pulse-badge {
-    animation: pulse-badge-anim 1.5s infinite;
+    animation: ig-pulse 1.8s infinite;
 }
 
-@keyframes pulse-badge-anim {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-    100% { transform: scale(1); }
+/* Form Controls - Crisp Instagram Inputs */
+.form-control, .form-select {
+    border: 1.5px solid var(--border-ig);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+    padding: 10px 16px;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--ig-pink);
+    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15);
+    color: var(--text-primary);
+}
+
+/* Tables in Admin/Reports with Clean High Contrast */
+.table {
+    color: var(--text-primary) !important;
+}
+
+.table th {
+    font-weight: 700;
+    color: var(--text-primary);
+    background-color: #f8fafc;
+    border-bottom: 2px solid var(--border-ig);
+}
+
+.table td {
+    vertical-align: middle;
+    color: var(--text-primary);
+    border-bottom: 1px solid #f1f5f9;
 }

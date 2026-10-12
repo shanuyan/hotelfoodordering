@@ -5,30 +5,30 @@
 }
 
 <div class="container-fluid px-lg-5 py-3">
-    <!-- TOP HEADER CARD (Matching User Image) -->
-    <div class="card top-header-card p-4 mb-4">
+    <!-- TOP HEADER CARD (Instagram Style) -->
+    <div class="card top-header-card p-4 mb-4 border-0 shadow-sm" style="border: 1.5px solid #e2e8f0 !important;">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
-                <span class="badge bg-light text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-bold text-uppercase small">
-                    🍴 SMART HOTEL & RESTAURANT • TABLESIDE SERVICE
+                <span class="badge badge-ig-gradient px-3 py-2 rounded-pill fw-bold text-uppercase small">
+                    🍴 SMART HOTEL • TABLESIDE ORDERING
                 </span>
                 <h1 class="fw-bold mb-0 text-dark mt-2" style="font-size: 2.2rem; letter-spacing: -0.03em;">
-                    Customer Food Ordering Page
+                    Customer Food <span class="ig-gradient-text">Menu</span>
                 </h1>
             </div>
             <div class="text-end">
-                <span class="badge bg-light text-muted border px-3 py-2 rounded-3 font-monospace small">
-                    Session Code: <strong class="text-danger">@Model.Session.SessionCode</strong>
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-3 font-monospace small">
+                    Session Code: <strong class="text-dark">@Model.Session.SessionCode</strong>
                 </span>
             </div>
         </div>
 
         <!-- TABLE SELECTION DROPDOWN -->
         <div class="table-select-box mb-3">
-            <label class="form-label fw-bold text-uppercase small mb-1" style="color: #d9531e; letter-spacing: 0.05em;">
-                🪑 SELECT YOUR TABLE NUMBER:
+            <label class="form-label fw-bold text-uppercase small mb-1 text-dark" style="letter-spacing: 0.05em;">
+                <i class="fas fa-chair text-primary me-1"></i> SELECT YOUR TABLE NUMBER:
             </label>
-            <select id="tableSelector" class="form-select form-select-lg fw-bold text-dark border-0 bg-transparent ps-0" style="font-size: 1.1rem;" onchange="changeTableSelection(this.value)">
+            <select id="tableSelector" class="form-select form-select-lg fw-bold text-dark border-0 bg-transparent ps-0" style="font-size: 1.1rem; cursor: pointer;" onchange="changeTableSelection(this.value)">
                 @foreach (var t in Model.AllTables)
                 {
                     if (t.Id == Model.Table.Id)
@@ -44,7 +44,7 @@
         </div>
 
         <!-- META DETAILS FOOTER -->
-        <div class="row g-2 pt-2 border-top border-light text-muted small">
+        <div class="row g-2 pt-2 border-top border-light text-dark small fw-semibold">
             <div class="col-md-4"><i class="fas fa-map-marker-alt text-danger me-1"></i> No 123, Beach Road, Colombo</div>
             <div class="col-md-4"><i class="fas fa-phone-alt text-success me-1"></i> +94 11 234 5678</div>
             <div class="col-md-4 text-md-end"><i class="fas fa-clock text-warning me-1"></i> Open Daily: <strong>07:00 AM – 11:00 PM</strong></div>
@@ -183,32 +183,32 @@
                 </div>
 
                 <!-- PRICE BREAKDOWN -->
-                <div class="bg-light p-3 rounded-3 mb-4 border">
-                    <div class="d-flex justify-content-between mb-1 small text-muted">
-                        <span>Subtotal</span>
-                        <span class="fw-semibold text-dark" id="sidebarSubtotal">Rs. 0.00</span>
+                <div class="bg-light p-3 rounded-4 mb-4 border" style="border: 1.5px solid #e2e8f0 !important;">
+                    <div class="d-flex justify-content-between mb-1 small text-secondary">
+                        <span class="fw-semibold">Subtotal</span>
+                        <span class="fw-bold text-dark" id="sidebarSubtotal">Rs. 0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1 small text-muted">
-                        <span>Service Charge (10%)</span>
-                        <span class="fw-semibold text-dark" id="sidebarServiceCharge">Rs. 0.00</span>
+                    <div class="d-flex justify-content-between mb-1 small text-secondary">
+                        <span class="fw-semibold">Service Charge (10%)</span>
+                        <span class="fw-bold text-dark" id="sidebarServiceCharge">Rs. 0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1 small text-muted">
-                        <span>Govt Tax (VAT 0%)</span>
-                        <span class="fw-semibold text-dark">Rs. 0.00</span>
+                    <div class="d-flex justify-content-between mb-1 small text-secondary">
+                        <span class="fw-semibold">Govt Tax (VAT 0%)</span>
+                        <span class="fw-bold text-dark">Rs. 0.00</span>
                     </div>
                     <hr class="my-2" />
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="fw-bold text-dark fs-6">Total Payable</span>
-                        <span class="fw-bold fs-4" style="color: #d9531e;" id="sidebarGrandTotal">Rs. 0.00</span>
+                        <span class="price-tag-ig fs-3" id="sidebarGrandTotal">Rs. 0.00</span>
                     </div>
                 </div>
 
                 <!-- CONFIRM ORDER BUTTON -->
-                <button type="button" class="btn btn-terracotta w-100 btn-lg shadow-sm" id="btnConfirmOrderToKitchen">
+                <button type="button" class="btn btn-instagram w-100 btn-lg rounded-pill shadow" id="btnConfirmOrderToKitchen">
                     🍴 Confirm Order to Kitchen
                 </button>
-                <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">
-                    Directly dispatched to Kitchen Display KDS
+                <small class="text-secondary fw-semibold text-center d-block mt-2" style="font-size: 0.8rem;">
+                    <i class="fas fa-check-circle text-success me-1"></i> Instantly synced to Kitchen Display (KDS)
                 </small>
             </div>
         </div>
